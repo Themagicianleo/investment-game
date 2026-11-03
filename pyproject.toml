@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trade-sim"
+version = "0.1.0"
+description = "Educational command-line trading simulator that replays historical daily data one day at a time."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "yfinance>=0.2.40",
+    "pandas>=1.5",
+    "numpy>=1.23",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+trade-sim = "trade_sim.cli:main"
+
+[tool.setuptools]
+packages = ["trade_sim"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

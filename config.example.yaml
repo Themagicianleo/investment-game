@@ -1,0 +1,49 @@
+# trade-sim configuration — safe defaults.
+# Copy to config.yaml (which is git-ignored) and edit your personal settings there:
+#   cp config.example.yaml config.yaml
+# All *_pct values are percentages (0.05 means 0.05%, not 5%).
+
+tickers: [VT, AAPL, NVDA, INTC, AMD]
+benchmark_ticker: VT          # buy-and-hold comparison in the end report
+
+starting_cash_usd: 10000
+fractional_shares: false      # false = round share quantities down to whole shares
+
+costs:
+  half_spread_pct: 0.05       # half the bid-ask spread, added to buys / subtracted from sells
+  slippage_pct: 0.05          # extra adverse move vs the open price
+  fee_per_order_usd: 0.99     # flat fee per filled order
+  fx_spread_pct: 0.15         # SGD -> USD conversion spread
+  # deposit: your SGD deposit is converted once at the start (fee taken from starting cash)
+  # per_buy: every buy is funded by converting SGD -> USD (fee charged on each buy)
+  # none:    no FX conversion cost
+  fx_mode: deposit
+
+dividends:
+  withholding_tax_pct: 30     # US withholding tax on dividends for non-US residents
+
+alerts:
+  loss_limit_pct: 15          # warn (never auto-sell) when a position is this far below average cost
+  loss_limit_grace_days: 5    # used by the end-of-session journal review
+
+session:
+  min_years_after_start: 2    # the random start date always has at least this much data after it
+  seed: null                  # set an integer to make the random start date reproducible
+
+data:
+  cache_dir: data_cache
+  journal_path: journal.csv
+
+trend_bot:
+  enabled: true
+  short_ma: 50
+  long_ma: 200
+  walk_forward:
+    enabled: true
+    train_fraction: 0.7
+    short_grid: [20, 50, 100]
+    long_grid: [100, 150, 200, 250]
+
+review:
+  large_move_pct: 10          # a trade placed after a move this large is flagged in the review
+  large_move_lookback_days: 5

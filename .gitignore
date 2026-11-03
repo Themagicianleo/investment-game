@@ -1,0 +1,23 @@
+# Personal / generated data — never commit
+journal.csv
+*.journal.csv
+data_cache/
+config.yaml
+config.local.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
