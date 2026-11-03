@@ -26,3 +26,4 @@ packages = ["trade_sim"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
