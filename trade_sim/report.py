@@ -1,105 +1,160 @@
-"""End-of-session report."""
+"""End-of-session report: ``compute_report`` returns plain data, ``build_report`` formats it as text."""
 
 from __future__ import annotations
 
-from . import DISCLAIMER
+from dataclasses import asdict
+
 from .bots import BenchmarkResult, TrendRule, run_buy_and_hold, run_trend_bot
 from .review import review
 from .session import Session, fmt_date
 from .walkforward import WalkForwardResult, run_walk_forward
 
+NOTICES = [
+    "Educational only. This simulator does not give buy or sell advice.",
+    "Past performance does not predict future results.",
+    "The trend bot is a comparison, not a recommendation.",
+]
 
-def _pct(x: float) -> str:
-    return f"{x:+.2%}"
+WALK_FORWARD_CAVEAT = (
+    "The in-sample figure was selected *because* it was the best on that data, so it is optimistic "
+    "by construction. Only the out-of-sample figure is a (single, small) test, and it is not proof."
+)
 
 
-def _bench_line(r: BenchmarkResult) -> str:
-    return (f"  {r.name:<26} {_pct(r.total_return):>9}   final ${r.final_value:>11,.2f}   "
-            f"trades {r.trades:>3}   costs ${r.fees + r.fx + r.spread_slippage:,.2f}")
+def _bench(r: BenchmarkResult) -> dict:
+    return {
+        "name": r.name, "start": fmt_date(r.start), "end": fmt_date(r.end),
+        "final_value": r.final_value, "return": r.total_return, "trades": r.trades,
+        "costs": r.fees + r.fx + r.spread_slippage, "dividend_tax": r.dividend_tax,
+    }
 
 
-def format_walk_forward(wf: WalkForwardResult, dates) -> list[str]:
+def walk_forward_dict(wf: WalkForwardResult, dates) -> dict:
     s = wf.split
-    lines = [
-        "Walk-forward check of the trend bot (benchmark only)",
-        f"  In-sample   {fmt_date(dates[s.train_start])} to {fmt_date(dates[s.train_end])} ({s.train_len} days): "
-        f"MA lengths chosen here",
-        f"  Out-sample  {fmt_date(dates[s.test_start])} to {fmt_date(dates[s.test_end])} ({s.test_len} days): "
-        f"chosen lengths run unchanged",
-        f"  Chosen rule {wf.chosen}:   in-sample {_pct(wf.in_sample.total_return)}   "
-        f"out-of-sample {_pct(wf.out_of_sample.total_return)}",
-        f"  Default {wf.default_rule}:  in-sample {_pct(wf.default_in_sample.total_return)}   "
-        f"out-of-sample {_pct(wf.default_out_of_sample.total_return)}",
-        "  The in-sample figure was selected *because* it was the best on that data, so it is optimistic",
-        "  by construction. Only the out-of-sample figure is a (single, small) test, and it is not proof.",
-    ]
-    return lines
+    return {
+        "train": {"start": fmt_date(dates[s.train_start]), "end": fmt_date(dates[s.train_end]), "days": s.train_len},
+        "test": {"start": fmt_date(dates[s.test_start]), "end": fmt_date(dates[s.test_end]), "days": s.test_len},
+        "chosen_rule": str(wf.chosen),
+        "chosen_in_sample": wf.in_sample.total_return,
+        "chosen_out_of_sample": wf.out_of_sample.total_return,
+        "default_rule": str(wf.default_rule),
+        "default_in_sample": wf.default_in_sample.total_return,
+        "default_out_of_sample": wf.default_out_of_sample.total_return,
+        "candidates": [{"rule": str(r), "in_sample": ret} for r, ret in sorted(wf.table, key=lambda x: -x[1])],
+        "caveat": WALK_FORWARD_CAVEAT,
+    }
 
 
-def build_report(session: Session, include_bot: bool = True) -> str:
+def compute_report(session: Session, include_bot: bool = True) -> dict:
     cfg = session.cfg
     acct = session.account
     market, start, end = session.bounded_market()
     dates = market.dates
     cash0 = acct.starting_cash
     days = end - start
-    L: list[str] = []
-    L.append("=" * 78)
-    L.append("END OF SESSION REPORT")
-    L.append(f"Period: {fmt_date(dates[start])} to {fmt_date(dates[end])} ({days} trading days)")
-    L.append("=" * 78)
+    trading_costs = acct.fees_paid + acct.fx_paid + acct.spread_slippage_paid
 
-    total_costs = acct.fees_paid + acct.fx_paid + acct.spread_slippage_paid
-    L.append("You")
-    L.append(f"  Final value:        ${acct.equity():,.2f}  (started with ${cash0:,.2f})")
-    L.append(f"  Return:             {_pct(acct.total_return())}")
-    L.append(f"  Orders filled:      {acct.order_count}")
-    L.append(f"  Flat fees:          ${acct.fees_paid:,.2f}")
-    L.append(f"  FX spread:          ${acct.fx_paid:,.2f}")
-    L.append(f"  Spread + slippage:  ${acct.spread_slippage_paid:,.2f}")
-    L.append(f"  Dividend tax:       ${acct.dividend_tax_paid:,.2f}  (net dividends received ${acct.dividends_net:,.2f})")
-    L.append(f"  Total fees+taxes:   ${total_costs + acct.dividend_tax_paid:,.2f}")
-    if acct.pending:
-        L.append(f"  ({len(acct.pending)} pending order(s) cancelled at session end)")
-    L.append("")
+    rep: dict = {
+        "start": fmt_date(dates[start]), "end": fmt_date(dates[end]), "trading_days": days,
+        "user": {
+            "starting_cash": cash0, "final_value": acct.equity(), "return": acct.total_return(),
+            "orders": acct.order_count, "fees": acct.fees_paid, "fx": acct.fx_paid,
+            "spread_slippage": acct.spread_slippage_paid, "dividend_tax": acct.dividend_tax_paid,
+            "dividends_net": acct.dividends_net, "total_fees_and_taxes": trading_costs + acct.dividend_tax_paid,
+            "cancelled_orders": len(acct.pending),
+        },
+        "trend_bot": None, "trend_bot_rule": None, "benchmark": None, "tickers": [],
+        "walk_forward": None, "walk_forward_skipped": None,
+        "notices": NOTICES,
+    }
 
-    L.append("Benchmarks over the same dates, same costs (comparisons, NOT recommendations)")
-    bench = cfg["benchmark_ticker"]
-    if include_bot and cfg["trend_bot"]["enabled"]:
+    bot_on = include_bot and cfg["trend_bot"]["enabled"]
+    if bot_on:
         rule = TrendRule(cfg["trend_bot"]["short_ma"], cfg["trend_bot"]["long_ma"])
-        L.append(_bench_line(run_trend_bot(market, start, end, rule, session.costs, cash0, session.tickers)))
-        L.append("    ^ trend bot: follows PAST trends (holds a ticker while its "
-                 f"{rule.short_ma}-day MA > {rule.long_ma}-day MA)")
+        rep["trend_bot"] = _bench(run_trend_bot(market, start, end, rule, session.costs, cash0, session.tickers))
+        rep["trend_bot_rule"] = (f"Follows PAST trends: holds a ticker while its {rule.short_ma}-day moving "
+                                 f"average is above its {rule.long_ma}-day moving average, otherwise cash.")
+    bench = cfg["benchmark_ticker"]
     if bench in market.tickers:
-        L.append(_bench_line(run_buy_and_hold(market, bench, start, end, session.costs, cash0)))
-    L.append("")
-    L.append("Each ticker bought at the first open and held through the period")
-    for t in session.tickers:
-        L.append(_bench_line(run_buy_and_hold(market, t, start, end, session.costs, cash0)))
-    L.append("")
+        rep["benchmark"] = _bench(run_buy_and_hold(market, bench, start, end, session.costs, cash0))
+    rep["tickers"] = [_bench(run_buy_and_hold(market, t, start, end, session.costs, cash0)) for t in session.tickers]
 
-    wf_cfg = cfg["trend_bot"]["walk_forward"]
-    if include_bot and cfg["trend_bot"]["enabled"] and wf_cfg["enabled"]:
+    if bot_on and cfg["trend_bot"]["walk_forward"]["enabled"]:
         try:
             wf = run_walk_forward(market, start, end, cfg, session.costs, cash0, session.tickers)
-            L.extend(format_walk_forward(wf, dates))
+            rep["walk_forward"] = walk_forward_dict(wf, dates)
         except ValueError as exc:
-            L.append(f"Walk-forward check skipped: {exc}")
-        L.append("")
+            rep["walk_forward_skipped"] = str(exc)
 
-    L.append("Journal review (patterns to reflect on, not advice)")
-    findings = review(session.entries, session.episodes, cfg, end, days, total_costs, cash0)
-    if not findings:
-        L.append("  No common patterns were flagged in this session's journal.")
-    for f in findings[:3]:
-        L.append(f"  - {f.title} (x{f.count}): {f.detail}")
+    findings = review(session.entries, session.episodes, cfg, end, days, trading_costs, cash0)
+    rep["review"] = [asdict(f) for f in findings[:3]]
+    return rep
+
+
+# ---------------------------------------------------------------------------
+# text formatting (CLI)
+# ---------------------------------------------------------------------------
+
+def _pct(x: float) -> str:
+    return f"{x:+.2%}"
+
+
+def _bench_line(b: dict) -> str:
+    return (f"  {b['name']:<26} {_pct(b['return']):>9}   final ${b['final_value']:>11,.2f}   "
+            f"trades {b['trades']:>3}   costs ${b['costs']:,.2f}")
+
+
+def walk_forward_lines(wf: dict) -> list[str]:
+    tr, te = wf["train"], wf["test"]
+    return [
+        "Walk-forward check of the trend bot (benchmark only)",
+        f"  In-sample   {tr['start']} to {tr['end']} ({tr['days']} days): MA lengths chosen here",
+        f"  Out-sample  {te['start']} to {te['end']} ({te['days']} days): chosen lengths run unchanged",
+        f"  Chosen rule {wf['chosen_rule']}:   in-sample {_pct(wf['chosen_in_sample'])}   "
+        f"out-of-sample {_pct(wf['chosen_out_of_sample'])}",
+        f"  Default {wf['default_rule']}:  in-sample {_pct(wf['default_in_sample'])}   "
+        f"out-of-sample {_pct(wf['default_out_of_sample'])}",
+        "  The in-sample figure was selected *because* it was the best on that data, so it is optimistic",
+        "  by construction. Only the out-of-sample figure is a (single, small) test, and it is not proof.",
+    ]
+
+
+def format_report(rep: dict) -> str:
+    u = rep["user"]
+    L = ["=" * 78, "END OF SESSION REPORT",
+         f"Period: {rep['start']} to {rep['end']} ({rep['trading_days']} trading days)", "=" * 78,
+         "You",
+         f"  Final value:        ${u['final_value']:,.2f}  (started with ${u['starting_cash']:,.2f})",
+         f"  Return:             {_pct(u['return'])}",
+         f"  Orders filled:      {u['orders']}",
+         f"  Flat fees:          ${u['fees']:,.2f}",
+         f"  FX spread:          ${u['fx']:,.2f}",
+         f"  Spread + slippage:  ${u['spread_slippage']:,.2f}",
+         f"  Dividend tax:       ${u['dividend_tax']:,.2f}  (net dividends received ${u['dividends_net']:,.2f})",
+         f"  Total fees+taxes:   ${u['total_fees_and_taxes']:,.2f}"]
+    if u["cancelled_orders"]:
+        L.append(f"  ({u['cancelled_orders']} pending order(s) cancelled at session end)")
+    L += ["", "Benchmarks over the same dates, same costs (comparisons, NOT recommendations)"]
+    if rep["trend_bot"]:
+        L.append(_bench_line(rep["trend_bot"]))
+        L.append(f"    ^ trend bot: {rep['trend_bot_rule']}")
+    if rep["benchmark"]:
+        L.append(_bench_line(rep["benchmark"]))
+    L += ["", "Each ticker bought at the first open and held through the period"]
+    L += [_bench_line(b) for b in rep["tickers"]]
     L.append("")
-    L.append("Important")
-    L.append("  * Educational only. This simulator does not give buy or sell advice.")
-    L.append("  * Past performance does not predict future results.")
-    L.append("  * The trend bot is a comparison, not a recommendation.")
-    L.append("=" * 78)
+    if rep["walk_forward"]:
+        L += walk_forward_lines(rep["walk_forward"]) + [""]
+    elif rep["walk_forward_skipped"]:
+        L += [f"Walk-forward check skipped: {rep['walk_forward_skipped']}", ""]
+    L.append("Journal review (patterns to reflect on, not advice)")
+    if not rep["review"]:
+        L.append("  No common patterns were flagged in this session's journal.")
+    for f in rep["review"]:
+        L.append(f"  - {f['title']} (x{f['count']}): {f['detail']}")
+    L += ["", "Important"] + [f"  * {n}" for n in rep["notices"]] + ["=" * 78]
     return "\n".join(L)
 
 
-__all__ = ["build_report", "DISCLAIMER"]
+def build_report(session: Session, include_bot: bool = True) -> str:
+    return format_report(compute_report(session, include_bot))

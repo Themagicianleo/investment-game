@@ -14,7 +14,7 @@ from .config import ConfigError, load_config
 from .data import DataError, NetworkError, load_market_frames
 from .execution import BUY, SELL
 from .market import EndOfData, MarketData
-from .report import build_report, format_walk_forward
+from .report import build_report, walk_forward_dict, walk_forward_lines
 from .session import DayReport, Session, SessionError, fmt_date
 from .walkforward import required_warmup, run_walk_forward
 
@@ -186,20 +186,16 @@ def handle(s: Session, line: str, ask: Callable[[str], str], out) -> None:
                 days = int(args[0])
             except ValueError:
                 raise SessionError("Usage: hold [days]")
-            if days < 1:
-                raise SessionError("days must be at least 1")
-        for i in range(days):
-            if not s.view.has_next():
-                out("No more data: this was the last available trading day.")
-                raise _Quit()
-            rep = s.advance()
-            last = i == days - 1
-            eventful = rep.step.fills or rep.step.rejections or rep.step.dividends or rep.step.splits or rep.new_alerts
-            if last or eventful:
+        reports, stopped = s.hold(days)
+        for i, rep in enumerate(reports):
+            st = rep.step
+            eventful = st.fills or st.rejections or st.dividends or st.splits or rep.new_alerts
+            if eventful or i == len(reports) - 1:
                 out(day_text(s, rep, verbose=True))
-            if rep.new_alerts and not last:
-                out(f"Stopped after {i + 1} day(s) because of a loss-limit alert.")
-                break
+        if stopped:
+            out(stopped)
+            if not s.view.has_next():
+                raise _Quit()
     elif cmd == "status":
         out(status_text(s))
     elif cmd == "journal":
@@ -300,7 +296,7 @@ def cmd_walkforward(args, cfg) -> int:
     tickers = [t for t in cfg["tickers"] if t in market.tickers]
     wf = run_walk_forward(market, start, end, cfg, Costs.from_config(cfg), cfg["starting_cash_usd"], tickers)
     print(DISCLAIMER + "\n")
-    print("\n".join(format_walk_forward(wf, market.dates)))
+    print("\n".join(walk_forward_lines(walk_forward_dict(wf, market.dates))))
     print("\nIn-sample return of every candidate (the best one was chosen):")
     for rule, ret in sorted(wf.table, key=lambda r: -r[1]):
         print(f"  {str(rule):<12} {ret:+.2%}")

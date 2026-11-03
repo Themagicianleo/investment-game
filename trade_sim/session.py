@@ -58,6 +58,8 @@ class Session:
         self.entries: list[dict] = []
         self.episodes: list[AlertEpisode] = []
         self._active: dict[str, AlertEpisode] = {}
+        self.equity_curve: list[tuple[pd.Timestamp, float]] = [(self.date, self.account.equity())]
+        self.ended = False
 
     # --- helpers ----------------------------------------------------------
     @property
@@ -127,7 +129,25 @@ class Session:
         for rej in step.rejections:
             report.journal_error = self._record(rej) or report.journal_error
         self._update_alerts(report)
+        self.equity_curve.append((self.date, self.account.equity()))
         return report
+
+    def hold(self, days: int = 1) -> tuple[list[DayReport], str | None]:
+        """Advance up to ``days`` trading days. Stops early on a new loss-limit alert or at the end of data.
+
+        Returns the day reports and, if it stopped early, the reason.
+        """
+        if days < 1:
+            raise SessionError("days must be at least 1")
+        reports: list[DayReport] = []
+        for i in range(days):
+            if not self.view.has_next():
+                return reports, "No more data: this is the last available trading day."
+            rep = self.advance()
+            reports.append(rep)
+            if rep.new_alerts and i < days - 1:
+                return reports, f"Stopped after {i + 1} day(s) because of a loss-limit alert."
+        return reports, None
 
     def _update_alerts(self, report: DayReport) -> None:
         idx = self.view.idx
