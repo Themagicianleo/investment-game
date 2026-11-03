@@ -13,6 +13,7 @@ dependencies = [
     "pandas>=1.5",
     "numpy>=1.23",
     "PyYAML>=6.0",
+    "Flask>=2.3",
 ]
 
 [project.optional-dependencies]
@@ -23,6 +24,9 @@ trade-sim = "trade_sim.cli:main"
 
 [tool.setuptools]
 packages = ["trade_sim"]
+
+[tool.setuptools.package-data]
+trade_sim = ["web_static/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

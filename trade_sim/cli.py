@@ -303,6 +303,29 @@ def cmd_walkforward(args, cfg) -> int:
     return 0
 
 
+def cmd_web(args, cfg) -> int:
+    try:
+        from .web import create_app
+    except ImportError:
+        raise DataError("The web app needs Flask. Run: pip install -r requirements.txt")
+    if args.no_bot:
+        cfg["trend_bot"]["enabled"] = False
+    print("Loading market data (cached CSVs, or a download on the first run)...")
+    market = _load_market(cfg, args.refresh)  # fail fast with a clear message
+    app = create_app(cfg, market=market, include_bot=not args.no_bot)
+    url = f"http://{args.host}:{args.port}"
+    print(DISCLAIMER)
+    print(f"\ntrade-sim web app running at {url}  (Ctrl+C to stop)")
+    if args.host not in ("127.0.0.1", "localhost"):
+        print("WARNING: listening beyond localhost; anyone on your network can reach this app.")
+    if args.open:
+        import threading
+        import webbrowser
+        threading.Timer(1.0, lambda: webbrowser.open(url)).start()
+    app.run(host=args.host, port=args.port, debug=False, threaded=True)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="trade-sim",
@@ -327,6 +350,12 @@ def build_parser() -> argparse.ArgumentParser:
     wf.add_argument("--start", help="first date (YYYY-MM-DD)")
     wf.add_argument("--end", help="last date (YYYY-MM-DD)")
     wf.add_argument("--refresh", action="store_true", help="re-download data instead of using the cache")
+    web = sub.add_parser("web", help="run the browser version on http://127.0.0.1:8000")
+    web.add_argument("--host", default="127.0.0.1", help="interface to bind (default: 127.0.0.1, local only)")
+    web.add_argument("--port", type=int, default=8000, help="port (default: 8000)")
+    web.add_argument("--open", action="store_true", help="open the app in your browser")
+    web.add_argument("--no-bot", action="store_true", help="skip the trend-bot benchmark in the report")
+    web.add_argument("--refresh", action="store_true", help="re-download data instead of using the cache")
     return p
 
 
@@ -340,7 +369,7 @@ def main(argv: list[str] | None = None) -> int:
         cfg, source = load_config(args.config)
         if source != "config.yaml" and args.config is None:
             print(f"(Using {source}; copy config.example.yaml to config.yaml to customise.)")
-        handlers = {"play": cmd_play, "fetch": cmd_fetch, "walkforward": cmd_walkforward}
+        handlers = {"play": cmd_play, "fetch": cmd_fetch, "walkforward": cmd_walkforward, "web": cmd_web}
         return handlers[args.command](args, cfg)
     except ConfigError as exc:
         print(f"Config error: {exc}", file=sys.stderr)

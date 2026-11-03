@@ -2,4 +2,5 @@ yfinance>=0.2.40
 pandas>=1.5
 numpy>=1.23
 PyYAML>=6.0
+Flask>=2.3
 pytest>=7
