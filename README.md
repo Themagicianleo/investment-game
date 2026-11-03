@@ -1,6 +1,6 @@
 # trade-sim
 
-A command-line simulator for practising **buy, hold and sell decisions** on US stocks and ETFs
+A simulator, with a **web app** and a command-line interface, for practising **buy, hold and sell decisions** on US stocks and ETFs
 by replaying real daily history one trading day at a time.
 
 > **Educational use only.** trade-sim does not give buy or sell advice. Past performance does not
@@ -43,10 +43,38 @@ pip install -e ".[dev]"              # or: pip install -r requirements.txt
 
 cp config.example.yaml config.yaml   # your personal settings; git-ignored
 trade-sim fetch                      # optional: download and cache the data first
-trade-sim play                       # start a session (same as plain `trade-sim`)
+
+trade-sim web --open                 # web app at http://127.0.0.1:8000
+trade-sim play                       # or play in the terminal (same as plain `trade-sim`)
 ```
 
-You can also run it without installing: `python -m trade_sim play`.
+You can also run it without installing: `python -m trade_sim web`.
+
+### Web app
+
+`trade-sim web` starts a small local server and serves a single-page app. The page has:
+
+- **Ticker cards** showing today's close and 1-day and 20-day changes, plus a price chart (3M to
+  All) of past closes up to today. The chart is adjusted only for splits that have already
+  happened, and a dashed line marks your average cost.
+- **An order form.** Buy takes a USD amount; sell takes a USD amount or "Sell all". Both fields,
+  *Why are you making this trade?* and *What would prove you wrong?*, are required.
+- **Next day / +5 days / +1 month buttons.** You can also press **n** for the next day.
+  Multi-day holds stop early when a loss-limit alert fires.
+- **Account panels:** total value with an equity sparkline, cash, positions (highlighted when
+  past the loss limit), costs so far, an activity log of fills, dividends, splits and alerts,
+  and your journal.
+- **End session,** which shows the full report: benchmarks, per-ticker buy-and-hold, the
+  walk-forward table, the journal review and the notices.
+
+It uses the same engine, `config.yaml`, data cache and `journal.csv` as the CLI. The browser
+only receives data up to the session's current day, which `tests/test_web.py` checks. The page
+is plain HTML/CSS/JS with no build step and no CDN, so it works offline once the data is cached.
+
+Options: `--port 8000`, `--host 127.0.0.1`, `--open` (opens your browser), `--no-bot`,
+`--refresh`. It listens only on localhost by default. Sessions live in the server's memory, so
+restarting the server ends any open session. Your journal entries are already saved in
+`journal.csv`.
 
 ### CLI
 
@@ -54,6 +82,7 @@ You can also run it without installing: `python -m trade_sim play`.
 trade-sim [-c CONFIG] play [--seed N] [--journal PATH] [--no-bot] [--refresh]
 trade-sim [-c CONFIG] fetch [TICKER ...] [--refresh]
 trade-sim [-c CONFIG] walkforward [--start YYYY-MM-DD] [--end YYYY-MM-DD]
+trade-sim [-c CONFIG] web [--port 8000] [--host 127.0.0.1] [--open] [--no-bot] [--refresh]
 ```
 
 - `--seed` makes the random start date reproducible.
@@ -62,7 +91,7 @@ trade-sim [-c CONFIG] walkforward [--start YYYY-MM-DD] [--end YYYY-MM-DD]
 
 Config lookup order: `--config`, then `./config.yaml`, then `./config.example.yaml`.
 
-### Commands during a session
+### Commands during a terminal session
 
 | Command | Meaning |
 |---|---|
@@ -176,7 +205,8 @@ The tests use synthetic data and need no network. They cover fees and FX, the sp
 slippage calculation, whole-share and fractional rounding, no-lookahead data access and next-open
 fills, dividend withholding, splits, the loss-limit alert, the walk-forward split (including that
 the parameter choice ignores test-period data), caching and network-error messages, the journal
-and a full scripted session.
+a full scripted session, and the web API (including
+that no future dates reach the browser).
 
 ## Limitations
 
