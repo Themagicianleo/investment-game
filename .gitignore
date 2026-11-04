@@ -1,5 +1,6 @@
 # Personal / generated data — never commit
 journal.csv
+progress.json
 *.journal.csv
 data_cache/
 config.yaml

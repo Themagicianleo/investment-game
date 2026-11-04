@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from .bots import BenchmarkResult, TrendRule, run_buy_and_hold, run_trend_bot
+from .education.scoring import process_score
 from .review import review
 from .session import Session, fmt_date
 from .walkforward import WalkForwardResult, run_walk_forward
@@ -26,6 +27,7 @@ def _bench(r: BenchmarkResult) -> dict:
         "name": r.name, "start": fmt_date(r.start), "end": fmt_date(r.end),
         "final_value": r.final_value, "return": r.total_return, "trades": r.trades,
         "costs": r.fees + r.fx + r.spread_slippage, "dividend_tax": r.dividend_tax,
+        "max_drawdown": r.max_drawdown,
     }
 
 
@@ -62,6 +64,7 @@ def compute_report(session: Session, include_bot: bool = True) -> dict:
             "spread_slippage": acct.spread_slippage_paid, "dividend_tax": acct.dividend_tax_paid,
             "dividends_net": acct.dividends_net, "total_fees_and_taxes": trading_costs + acct.dividend_tax_paid,
             "cancelled_orders": len(acct.pending),
+            "max_drawdown": session.max_drawdown,
         },
         "trend_bot": None, "trend_bot_rule": None, "benchmark": None, "tickers": [],
         "walk_forward": None, "walk_forward_skipped": None,
@@ -88,6 +91,7 @@ def compute_report(session: Session, include_bot: bool = True) -> dict:
 
     findings = review(session.entries, session.episodes, cfg, end, days, trading_costs, cash0)
     rep["review"] = [asdict(f) for f in findings[:3]]
+    rep["process"] = process_score(session)
     return rep
 
 
@@ -101,7 +105,7 @@ def _pct(x: float) -> str:
 
 def _bench_line(b: dict) -> str:
     return (f"  {b['name']:<26} {_pct(b['return']):>9}   final ${b['final_value']:>11,.2f}   "
-            f"trades {b['trades']:>3}   costs ${b['costs']:,.2f}")
+            f"trades {b['trades']:>3}   costs ${b['costs']:,.2f}   max DD {-b.get('max_drawdown', 0):.1%}")
 
 
 def walk_forward_lines(wf: dict) -> list[str]:
@@ -131,7 +135,8 @@ def format_report(rep: dict) -> str:
          f"  FX spread:          ${u['fx']:,.2f}",
          f"  Spread + slippage:  ${u['spread_slippage']:,.2f}",
          f"  Dividend tax:       ${u['dividend_tax']:,.2f}  (net dividends received ${u['dividends_net']:,.2f})",
-         f"  Total fees+taxes:   ${u['total_fees_and_taxes']:,.2f}"]
+         f"  Total fees+taxes:   ${u['total_fees_and_taxes']:,.2f}",
+         f"  Max drawdown:       {-u['max_drawdown']:.2%}"]
     if u["cancelled_orders"]:
         L.append(f"  ({u['cancelled_orders']} pending order(s) cancelled at session end)")
     L += ["", "Benchmarks over the same dates, same costs (comparisons, NOT recommendations)"]
@@ -147,6 +152,14 @@ def format_report(rep: dict) -> str:
         L += walk_forward_lines(rep["walk_forward"]) + [""]
     elif rep["walk_forward_skipped"]:
         L += [f"Walk-forward check skipped: {rep['walk_forward_skipped']}", ""]
+    proc = rep.get("process")
+    if proc:
+        score = "n/a (no trades)" if proc["score"] is None else f"{proc['score']}/100"
+        L.append(f"Process score: {score}  ({proc['note']})")
+        for c in proc["components"]:
+            pts = "  n/a" if c["score"] is None else f"{c['score']:>5g}/{c['max']}"
+            L.append(f"  {c['name']:<28} {pts}  {c['detail']}")
+        L.append("")
     L.append("Journal review (patterns to reflect on, not advice)")
     if not rep["review"]:
         L.append("  No common patterns were flagged in this session's journal.")

@@ -33,6 +33,7 @@ session:
 data:
   cache_dir: data_cache
   journal_path: journal.csv
+  progress_path: progress.json   # web app XP, lessons and session history
 
 trend_bot:
   enabled: true

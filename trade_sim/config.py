@@ -23,7 +23,7 @@ DEFAULTS: dict[str, Any] = {
     "dividends": {"withholding_tax_pct": 30.0},
     "alerts": {"loss_limit_pct": 15.0, "loss_limit_grace_days": 5},
     "session": {"min_years_after_start": 2, "seed": None},
-    "data": {"cache_dir": "data_cache", "journal_path": "journal.csv"},
+    "data": {"cache_dir": "data_cache", "journal_path": "journal.csv", "progress_path": "progress.json"},
     "trend_bot": {
         "enabled": True,
         "short_ma": 50,
