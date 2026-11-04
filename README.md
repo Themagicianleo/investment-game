@@ -50,31 +50,65 @@ trade-sim play                       # or play in the terminal (same as plain `t
 
 You can also run it without installing: `python -m trade_sim web`.
 
-### Web app
+### Web app (the learning game)
 
-`trade-sim web` starts a small local server and serves a single-page app. The page has:
+`trade-sim web --open` starts a small local server and opens the app at http://127.0.0.1:8000.
+It has four tabs:
 
-- **Ticker cards** showing today's close and 1-day and 20-day changes, plus a price chart (3M to
-  All) of past closes up to today. The chart is adjusted only for splits that have already
-  happened, and a dashed line marks your average cost.
-- **An order form.** Buy takes a USD amount; sell takes a USD amount or "Sell all". Both fields,
-  *Why are you making this trade?* and *What would prove you wrong?*, are required.
-- **Next day / +5 days / +1 month buttons.** You can also press **n** for the next day.
-  Multi-day holds stop early when a loss-limit alert fires.
-- **Account panels:** total value with an equity sparkline, cash, positions (highlighted when
-  past the loss limit), costs so far, an activity log of fills, dividends, splits and alerts,
-  and your journal.
-- **End session,** which shows the full report: benchmarks, per-ticker buy-and-hold, the
-  walk-forward table, the journal review and the notices.
+- **Play:** choose a game mode, then trade day by day (details below).
+- **Learn:** 11 short lessons, each about 4–5 minutes and ending in a three-question quiz.
+  Pass with 2 of 3 to earn XP.
+- **Glossary:** about 40 plain-English definitions. Dotted terms anywhere in the app show the
+  definition when you hover or tap them.
+- **Progress:** your level, XP, missions earned, lessons passed, and a history of every session
+  with its return, benchmark, max drawdown and process score.
 
-It uses the same engine, `config.yaml`, data cache and `journal.csv` as the CLI. The browser
-only receives data up to the session's current day, which `tests/test_web.py` checks. The page
-is plain HTML/CSS/JS with no build step and no CDN, so it works offline once the data is cached.
+#### Game modes
+
+| Mode | Data | What it's for |
+|---|---|---|
+| **Practice market** | Fictional companies with randomly generated prices (works offline) | Learning the mechanics. Each game is different and includes bull runs, crashes, a bubble, dividends and a split. |
+| **Random history** | Real daily data from a random past date | Making decisions without knowing what comes next. |
+| **Historical scenarios** | Real data from a fixed period: the dot-com era (2000), the financial crisis (2007), the 2020 pandemic shock, the 2022 rate-hike bear market | Practising discipline in a famous episode. A briefing describes the situation at the time without spoilers; a debrief after the session explains what happened. |
+
+#### What teaches you while you play
+
+- **Order ticket preview.** Before you place an order it estimates shares, total cost, trading
+  costs as a %, the rise needed just to break even, the position's weight after the trade, and
+  what a 20% fall in that ticker would cost your whole portfolio.
+- **Coach.** It flags moments when well-known mistakes tend to happen: buying after a sharp rise,
+  selling after a sharp drop, adding to a position past the loss limit, quick round trips,
+  small orders eaten by fees, and concentration in a single stock. It also explains events as
+  they happen: your first fill versus the open, ex-dividend dates and withholding tax, splits,
+  loss-limit alerts and drawdown thresholds. Every tip links to the relevant lesson. The coach
+  never says what to buy or sell.
+- **Position review.** After a loss-limit alert (or any time), "Review" lets you write down
+  whether your thesis still holds instead of trading. It goes in the journal and counts as a
+  disciplined response.
+- **Process score (0–100).** It rates habits, not profit, across five areas: written reasoning,
+  not reacting to big moves, responding to loss limits, position sizing (broad index funds are
+  not counted as concentration), and keeping costs down.
+- **Missions:** nine goals that reward good process, such as "Plan your exit", "Spread your
+  risk", "Face the alert", "Patience" and "Disciplined", each worth XP.
+- **Chart.** Optional 50- and 200-day moving-average overlays and markers for your own buys and
+  sells, all computed only from data up to today.
+- **End-of-session report.** Everything in the CLI report plus max drawdown for you and every
+  benchmark, the process-score breakdown, missions completed, XP earned, the scenario debrief and
+  up to three suggested lessons based on what happened.
+
+It uses the same engine, `config.yaml`, data cache and `journal.csv` as the CLI. Progress is
+saved in `progress.json` (git-ignored). The browser only receives data up to the session's
+current day, which `tests/test_web.py` checks. The page is plain HTML/CSS/JS with no build step
+and no CDN.
 
 Options: `--port 8000`, `--host 127.0.0.1`, `--open` (opens your browser), `--no-bot`,
 `--refresh`. It listens only on localhost by default. Sessions live in the server's memory, so
-restarting the server ends any open session. Your journal entries are already saved in
-`journal.csv`.
+restarting the server ends any open session; journal entries and progress are already on disk.
+If Yahoo Finance can't be reached, the server still starts, and the practice market works.
+
+**Opening it from your phone:** run `trade-sim web --host 0.0.0.0` and open
+`http://<your-computer's-LAN-IP>:8000` on a device on the same Wi-Fi. There is no login, so
+only do this on a network you trust.
 
 ### CLI
 
@@ -120,6 +154,7 @@ Every setting with its default is in [`config.example.yaml`](config.example.yaml
 | `alerts.loss_limit_pct` | 15 | |
 | `trend_bot.short_ma` / `long_ma` | 50 / 200 | |
 | `trend_bot.walk_forward.train_fraction` | 0.7 | |
+| `data.progress_path` | progress.json | web app XP, lessons and session history |
 
 ## Trend bot (benchmark only)
 
@@ -205,8 +240,10 @@ The tests use synthetic data and need no network. They cover fees and FX, the sp
 slippage calculation, whole-share and fractional rounding, no-lookahead data access and next-open
 fills, dividend withholding, splits, the loss-limit alert, the walk-forward split (including that
 the parameter choice ignores test-period data), caching and network-error messages, the journal
-a full scripted session, and the web API (including
-that no future dates reach the browser).
+a full scripted session, the web API (including
+that no future dates reach the browser), and the education features: glossary links, quiz
+grading with answers kept on the server, coach tips, the process score, missions, the practice
+market, progress/XP, and a check that no lesson text tells you to buy or sell.
 
 ## Limitations
 
@@ -236,5 +273,11 @@ trade-sim is a simplified model. It **cannot** model:
 - **Behaviour under real money:** a simulator cannot reproduce the emotions of risking real
   savings, and pausing time removes the pressure of live markets.
 - **Margin, short selling, options, interest on cash, account fees and minimums.**
+- **The practice market is not a model of any real market.** Its regimes, volatility and
+  events are made up to exercise the game's features. Use it to learn the mechanics, not to
+  draw conclusions about real securities.
+- **Lessons, the coach and the process score simplify.** They teach widely discussed concepts.
+  They are not personalised financial advice, and a high process score does not mean a strategy
+  will make money.
 
 Results from this simulator, including the trend bot's, say nothing reliable about future returns.
