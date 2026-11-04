@@ -27,6 +27,7 @@ class AlertEpisode:
     loss: float
     sold_idx: int | None = None        # first sell of this ticker after the alert fired
     recovered_idx: int | None = None   # first day back above the limit
+    reviewed_idx: int | None = None    # first written position review after the alert fired
     end_idx: int | None = None
 
 
@@ -44,12 +45,12 @@ def fmt_date(d: pd.Timestamp) -> str:
 
 class Session:
     def __init__(self, market: MarketData, cfg: dict, start_idx: int, journal_path: str | None = None,
-                 session_id: str | None = None):
+                 session_id: str | None = None, end_idx: int | None = None):
         self._market = market  # only used by the end report, bounded to today's index
         self.cfg = cfg
         self.costs = Costs.from_config(cfg)
         self.tickers = [t for t in cfg["tickers"] if t in market.tickers]
-        self.view = market.view(start_idx)
+        self.view = market.view(start_idx, end_idx)
         self.start_idx = start_idx
         self.account = Account(self.view, self.costs, cfg["starting_cash_usd"])
         self.journal_path = journal_path if journal_path is not None else cfg["data"]["journal_path"]
@@ -60,6 +61,14 @@ class Session:
         self._active: dict[str, AlertEpisode] = {}
         self.equity_curve: list[tuple[pd.Timestamp, float]] = [(self.date, self.account.equity())]
         self.ended = False
+        # process tracking used by the coach, missions and the process score
+        self.max_weights: list[float] = []          # largest single-position weight at each close
+        self.peak_equity = self.account.equity()
+        self.max_drawdown = 0.0                     # worst peak-to-trough fall of total value (fraction)
+        self.open_since: dict[str, int] = {}        # ticker -> index of the day the position was opened
+        self.longest_hold_days = 0
+        self.dividends_received = 0
+        self.splits_seen = 0
 
     # --- helpers ----------------------------------------------------------
     @property
@@ -116,6 +125,41 @@ class Session:
     def cancel_all(self) -> list[Order]:
         return self.account.cancel_all()
 
+    def weights(self) -> dict[str, float]:
+        """Each holding as a fraction of total value at today's close."""
+        eq = self.account.equity()
+        if eq <= 0:
+            return {}
+        return {t: p.shares * self.view.close(t) / eq for t, p in self.account.positions.items() if p.shares > 0}
+
+    def drawdown(self) -> float:
+        """Current fall of total value from its highest close this session (fraction, >= 0)."""
+        return max(0.0, 1.0 - self.account.equity() / self.peak_equity) if self.peak_equity > 0 else 0.0
+
+    def review_position(self, ticker: str, note: str) -> dict:
+        """Write a 'position review' journal note without trading (e.g. after a loss-limit alert)."""
+        t = self._check_ticker(ticker)
+        pos = self.account.positions.get(t)
+        if pos is None or pos.shares <= 0:
+            raise SessionError(f"You hold no {t} shares to review.")
+        if not note.strip():
+            raise SessionError("Write a short note: does your original reason still hold? Has your 'prove me wrong' condition happened?")
+        ep = self._active.get(t)
+        if ep is not None and ep.reviewed_idx is None:
+            ep.reviewed_idx = self.view.idx
+        row = {
+            "session_id": self.session_id, "status": "review", "placed_date": fmt_date(self.date),
+            "fill_date": fmt_date(self.date), "action": "review", "ticker": t, "shares": round(pos.shares, 6),
+            "loss_alert_active": ep is not None, "reason": note.strip(), "prove_wrong": "",
+            "note": f"close ${self.view.close(t):,.2f}, avg cost ${pos.avg_cost:,.2f}",
+        }
+        self.entries.append(row)
+        try:
+            journal.append(self.journal_path, row)
+        except journal.JournalError as exc:
+            row["note"] += f" (not saved: {exc})"
+        return row
+
     # --- time ---------------------------------------------------------------
     def advance(self) -> DayReport:
         step = self.account.step()
@@ -129,8 +173,27 @@ class Session:
         for rej in step.rejections:
             report.journal_error = self._record(rej) or report.journal_error
         self._update_alerts(report)
-        self.equity_curve.append((self.date, self.account.equity()))
+        self._track(report)
         return report
+
+    def _track(self, report: DayReport) -> None:
+        idx = self.view.idx
+        eq = self.account.equity()
+        self.equity_curve.append((self.date, eq))
+        self.peak_equity = max(self.peak_equity, eq)
+        self.max_drawdown = max(self.max_drawdown, self.drawdown())
+        w = self.weights()
+        self.max_weights.append(max(w.values()) if w else 0.0)
+        for t in self.tickers:
+            held = self.account.shares(t) > 0
+            if held and t not in self.open_since:
+                self.open_since[t] = idx
+            elif not held and t in self.open_since:
+                self.longest_hold_days = max(self.longest_hold_days, idx - self.open_since.pop(t))
+        for t, start in self.open_since.items():
+            self.longest_hold_days = max(self.longest_hold_days, idx - start)
+        self.dividends_received += len(report.step.dividends)
+        self.splits_seen += len(report.step.splits)
 
     def hold(self, days: int = 1) -> tuple[list[DayReport], str | None]:
         """Advance up to ``days`` trading days. Stops early on a new loss-limit alert or at the end of data.

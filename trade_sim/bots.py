@@ -41,17 +41,29 @@ class BenchmarkResult:
     fx: float
     spread_slippage: float
     dividend_tax: float
+    max_drawdown: float = 0.0
 
     @property
     def total_return(self) -> float:
         return self.final_value / self.starting_cash - 1.0
 
 
-def _result(name: str, acct: Account, start: pd.Timestamp) -> BenchmarkResult:
+class _Drawdown:
+    def __init__(self, acct: Account):
+        self.acct, self.peak, self.worst = acct, acct.equity(), 0.0
+
+    def update(self) -> None:
+        eq = self.acct.equity()
+        self.peak = max(self.peak, eq)
+        self.worst = max(self.worst, 1 - eq / self.peak if self.peak > 0 else 0.0)
+
+
+def _result(name: str, acct: Account, start: pd.Timestamp, dd: "_Drawdown | None" = None) -> BenchmarkResult:
     return BenchmarkResult(
         name=name, start=start, end=acct.view.date, starting_cash=acct.starting_cash,
         final_value=acct.equity(), trades=acct.order_count, fees=acct.fees_paid, fx=acct.fx_paid,
         spread_slippage=acct.spread_slippage_paid, dividend_tax=acct.dividend_tax_paid,
+        max_drawdown=dd.worst if dd else 0.0,
     )
 
 
@@ -72,6 +84,7 @@ def run_trend_bot(market: MarketData, start_idx: int, end_idx: int, rule: TrendR
     tickers = list(tickers or market.tickers)
     view = market.view(start_idx, end_idx)
     acct = Account(view, costs, starting_cash)
+    dd = _Drawdown(acct)
     while view.has_next():
         slot = acct.equity() / len(tickers)
         for t in tickers:
@@ -82,7 +95,8 @@ def run_trend_bot(market: MarketData, start_idx: int, end_idx: int, rule: TrendR
             elif on and not held:
                 acct.submit(Order(t, BUY, slot, view.date))
         acct.step()
-    return _result(f"Trend bot {rule}", acct, market.dates[start_idx])
+        dd.update()
+    return _result(f"Trend bot {rule}", acct, market.dates[start_idx], dd)
 
 
 def run_buy_and_hold(market: MarketData, ticker: str, start_idx: int, end_idx: int, costs: Costs,
@@ -90,8 +104,10 @@ def run_buy_and_hold(market: MarketData, ticker: str, start_idx: int, end_idx: i
     """Put all cash into ``ticker`` at the first possible fill (next open) and hold to ``end_idx``."""
     view = market.view(start_idx, end_idx)
     acct = Account(view, costs, starting_cash)
+    dd = _Drawdown(acct)
     if view.has_next():
         acct.submit(Order(ticker, BUY, acct.cash, view.date))
         while view.has_next():
             acct.step()
-    return _result(f"Buy & hold {ticker}", acct, market.dates[start_idx])
+            dd.update()
+    return _result(f"Buy & hold {ticker}", acct, market.dates[start_idx], dd)

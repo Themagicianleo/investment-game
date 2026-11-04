@@ -47,7 +47,8 @@ def review(entries: list[dict], episodes: list, cfg: dict, end_idx: int, session
     skipped = []
     for ep in episodes:
         deadline = ep.start_idx + grace
-        acted = ep.sold_idx is not None and ep.sold_idx <= deadline
+        acted = (ep.sold_idx is not None and ep.sold_idx <= deadline) or (
+            getattr(ep, "reviewed_idx", None) is not None and ep.reviewed_idx <= deadline)
         recovered = ep.recovered_idx is not None and ep.recovered_idx <= deadline
         if not acted and not recovered and end_idx >= deadline:
             skipped.append(ep)
@@ -55,8 +56,8 @@ def review(entries: list[dict], episodes: list, cfg: dict, end_idx: int, session
         names = ", ".join(sorted({ep.ticker for ep in skipped}))
         findings.append(Finding(
             "Skipping the loss limit", len(skipped),
-            f"A loss-limit alert fired and the position was neither reduced nor recovered within {grace} "
-            f"trading days ({names}). Holding can be a deliberate choice; the question is whether your "
+            f"A loss-limit alert fired and within {grace} trading days the position was not reduced, "
+            f"not reviewed in the journal, and did not recover ({names}). Holding can be a deliberate choice; the question is whether your "
             "'what would prove me wrong' note had already come true.",
         ))
 
