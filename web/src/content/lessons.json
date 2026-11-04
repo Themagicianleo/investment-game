@@ -1,0 +1,715 @@
+[
+  {
+    "id": "orders",
+    "title": "Orders, prices and the spread",
+    "level": "Basics",
+    "minutes": 4,
+    "summary": "What actually happens when you click buy, and why you never get exactly the price you see.",
+    "body": [
+      {
+        "p": "A stock does not have one price. At any moment there is a [[bid]] (the highest price someone will pay) and an [[ask]] (the lowest price someone will sell for). The gap between them is the [[spread]]."
+      },
+      {
+        "p": "A [[market order]] says \"fill me now at whatever price is available\". A buy fills near the ask and a sell near the bid, so you pay roughly **half the spread** on each side of a trade."
+      },
+      {
+        "p": "Prices can also move between the moment you decide and the moment your order executes. That extra cost is [[slippage]]. It is larger for big orders, thin markets and fast-moving days."
+      },
+      {
+        "h": "How this game models it"
+      },
+      {
+        "ul": [
+          "You decide after seeing today's close. Your order fills at the **next trading day's open**, a price you could not have known.",
+          "The fill is worse than that open by half the spread plus slippage (0.05% + 0.05% by default).",
+          "A flat fee is charged per order, and shares are rounded down to whole shares."
+        ]
+      },
+      {
+        "example": "Open = $100.00. Buy fill = $100.00 × (1 + 0.0005 + 0.0005) = $100.10. Sell fill = $100.00 × (1 − 0.001) = $99.90. A round trip at an unchanged price loses about 0.2% before fees."
+      },
+      {
+        "try": "Place a small order and compare the fill price with that day's open in the Activity log."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "You place a market buy order after the close. In this game, what price do you get?",
+        "options": [
+          "Today's close",
+          "Tomorrow's open, exactly",
+          "Tomorrow's open plus half-spread and slippage",
+          "The average of tomorrow's high and low"
+        ],
+        "answer": 2,
+        "explain": "Orders fill at the next open, moved against you by half the spread plus slippage."
+      },
+      {
+        "q": "The spread is…",
+        "options": [
+          "The broker's flat fee",
+          "The gap between the bid and the ask",
+          "How far a price moved today",
+          "The tax on dividends"
+        ],
+        "answer": 1,
+        "explain": "Bid = best price a buyer will pay; ask = best price a seller will accept. The gap is the spread."
+      },
+      {
+        "q": "Which situation usually increases slippage?",
+        "options": [
+          "A small order in a heavily traded ETF on a calm day",
+          "A large order in a thinly traded stock on a fast-moving day",
+          "Holding a position for a long time",
+          "Receiving a dividend"
+        ],
+        "answer": 1,
+        "explain": "Slippage grows with order size relative to liquidity and with volatility."
+      }
+    ]
+  },
+  {
+    "id": "costs",
+    "title": "The hidden drag of costs",
+    "level": "Basics",
+    "minutes": 4,
+    "summary": "Small fees and spreads look harmless, until you add up how often you pay them.",
+    "body": [
+      {
+        "p": "Every trade has costs: the flat [[commission]], the [[spread]], [[slippage]] and, for an SGD-based investor, the [[FX spread]] when converting to USD. Each is small. Together, repeated many times, they matter."
+      },
+      {
+        "h": "Flat fees hurt small orders most"
+      },
+      {
+        "example": "A $0.99 fee is 0.0099% of a $10,000 order but 1.98% of a $50 order. That $50 position must rise about 2% just to cover the fee to buy it, and more to cover selling it."
+      },
+      {
+        "h": "Round trips"
+      },
+      {
+        "p": "A [[round trip]] (buy then sell) pays costs twice. With 0.1% adverse fill on each side and two flat fees, a $1,000 round trip costs about $2 + $1.98 ≈ 0.4%. Do that 25 times a year and you have given up roughly 10% of the money cycled, before any gains or losses."
+      },
+      {
+        "h": "Costs compound"
+      },
+      {
+        "p": "Money paid in costs is no longer invested, so it also loses all the future growth it would have earned. That is why low-turnover approaches tend to keep more of the market's return."
+      },
+      {
+        "try": "Watch the 'Costs so far' panel. Before each trade the order ticket shows the move needed just to break even."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "With a $0.99 flat fee, which order loses the largest percentage to the fee?",
+        "options": [
+          "$5,000",
+          "$1,000",
+          "$200",
+          "$50"
+        ],
+        "answer": 3,
+        "explain": "$0.99 / $50 ≈ 2%, versus about 0.02% on $5,000."
+      },
+      {
+        "q": "Why do costs matter more for frequent traders?",
+        "options": [
+          "They pay higher tax rates",
+          "Costs are paid on every trade, and repeated costs add up and compound",
+          "Brokers charge them more per trade",
+          "They are not allowed to hold ETFs"
+        ],
+        "answer": 1,
+        "explain": "The per-trade cost is the same, but it is paid many more times, and the money spent stops compounding."
+      },
+      {
+        "q": "A 'round trip' means…",
+        "options": [
+          "Holding for a full year",
+          "Buying and later selling the same position",
+          "Converting SGD to USD and back",
+          "Rebalancing to equal weights"
+        ],
+        "answer": 1,
+        "explain": "Buy + sell = two sets of costs."
+      }
+    ]
+  },
+  {
+    "id": "sizing",
+    "title": "Position sizing and diversification",
+    "level": "Risk",
+    "minutes": 5,
+    "summary": "How much you put in each position often matters more than which positions you pick.",
+    "body": [
+      {
+        "p": "[[Position sizing]] is deciding how much of your portfolio goes into one idea. A brilliant idea at 90% of your money can still ruin you if it goes wrong; a mediocre idea at 5% cannot."
+      },
+      {
+        "p": "[[Diversification]] spreads risk across holdings that do not all move together. A broad ETF such as a total-world fund holds thousands of companies, so one company's bad news barely moves it. A single stock can fall 50% or more on its own."
+      },
+      {
+        "h": "Concentration in practice"
+      },
+      {
+        "ul": [
+          "Look at each position's **weight**: its value divided by your total value.",
+          "Ask \"if this one fell 30% tomorrow, what would my whole portfolio lose?\" A 50% weight × 30% fall = 15% of everything.",
+          "Holdings in the same industry (for example several chip makers) tend to move together, so they diversify less than their count suggests ([[correlation]])."
+        ]
+      },
+      {
+        "p": "There is no single correct size. Many educational resources discuss limiting any one position to a modest share of the portfolio, but the right number depends on goals and circumstances. This game only shows you the numbers so you can see the trade-off."
+      },
+      {
+        "try": "Complete the 'Spread your risk' mission: hold three or more tickers with none above 40% of your total value."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "A position is 50% of your portfolio and falls 30%. Roughly how much does the whole portfolio fall?",
+        "options": [
+          "3%",
+          "15%",
+          "30%",
+          "50%"
+        ],
+        "answer": 1,
+        "explain": "50% weight × 30% fall = 15%."
+      },
+      {
+        "q": "Why might holding four chip-maker stocks be less diversified than it looks?",
+        "options": [
+          "Chip makers never pay dividends",
+          "They tend to be affected by the same industry news, so they move together",
+          "ETFs cannot hold them",
+          "Four is too few to count"
+        ],
+        "answer": 1,
+        "explain": "Correlated holdings rise and fall together, so the risk does not spread out much."
+      },
+      {
+        "q": "What does a position's 'weight' mean?",
+        "options": [
+          "Its number of shares",
+          "Its share price",
+          "Its value as a fraction of your total portfolio value",
+          "How long you have held it"
+        ],
+        "answer": 2,
+        "explain": "Weight = position value ÷ total value."
+      }
+    ]
+  },
+  {
+    "id": "drawdowns",
+    "title": "Risk, volatility and drawdowns",
+    "level": "Risk",
+    "minutes": 4,
+    "summary": "Losses and gains are not symmetric, and the path you take matters as much as the destination.",
+    "body": [
+      {
+        "p": "[[Volatility]] measures how much prices swing. A [[drawdown]] is the fall from a previous peak to a later low. The [[maximum drawdown]] is the worst one over a period: a good gut-check of what holding something would have felt like."
+      },
+      {
+        "h": "The asymmetry of losses"
+      },
+      {
+        "ul": [
+          "Lose 10% → you need +11% to get back.",
+          "Lose 25% → you need +33%.",
+          "Lose 50% → you need +100%.",
+          "Lose 80% → you need +400%."
+        ]
+      },
+      {
+        "p": "That is why large losses are so damaging, and why sizing and having an exit plan are central to risk management."
+      },
+      {
+        "h": "Volatility and behaviour"
+      },
+      {
+        "p": "Broad stock indexes have historically had drawdowns of 30–50% in bad years, and single stocks far more. The question is not only \"what might I earn?\" but \"could I stick with my plan through a fall like that?\" Many people sell at the bottom of a drawdown they had not prepared for."
+      },
+      {
+        "try": "The report shows your maximum drawdown next to the benchmarks. Compare the return each achieved with the pain along the way."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Your portfolio falls 50%. What gain do you need to get back to where you started?",
+        "options": [
+          "50%",
+          "75%",
+          "100%",
+          "150%"
+        ],
+        "answer": 2,
+        "explain": "Half of the money must double: +100%."
+      },
+      {
+        "q": "Maximum drawdown is…",
+        "options": [
+          "The largest single-day fall",
+          "The worst peak-to-trough fall over a period",
+          "The average daily move",
+          "The total fees paid"
+        ],
+        "answer": 1,
+        "explain": "It measures the deepest fall from a high before a new high is made."
+      },
+      {
+        "q": "Why does maximum drawdown matter even if the final return is good?",
+        "options": [
+          "It changes the tax rate",
+          "It shows the losses you would have had to sit through, which many people cannot",
+          "It is the same as volatility",
+          "It only matters for bonds"
+        ],
+        "answer": 1,
+        "explain": "Investors often abandon a plan during a deep fall, locking in the loss."
+      }
+    ]
+  },
+  {
+    "id": "exit-plans",
+    "title": "Loss limits and having an exit plan",
+    "level": "Risk",
+    "minutes": 4,
+    "summary": "Decide what would prove you wrong before you are emotionally invested.",
+    "body": [
+      {
+        "p": "Before every trade this game asks: **what would prove me wrong?** Writing it down while you are calm makes it far easier to act on later, when you are not."
+      },
+      {
+        "p": "A [[loss limit]] is a pre-set point at which you re-examine a position. Some traders use automatic [[stop-loss order]]s; this game only alerts you, so the decision stays yours."
+      },
+      {
+        "h": "Trade-offs of loss limits"
+      },
+      {
+        "ul": [
+          "**Too tight:** normal day-to-day noise triggers it, and you pay costs repeatedly getting shaken out ([[whipsaw]]).",
+          "**Too loose:** a small mistake can grow into a large one.",
+          "**Gaps:** prices can open well below a stop level, so a stop does not guarantee the loss is capped."
+        ]
+      },
+      {
+        "p": "When an alert fires, there are three disciplined responses: reduce or exit the position; write a review explaining why your original thesis still holds; or recognise that your 'prove me wrong' condition has happened. The undisciplined response is to look away."
+      },
+      {
+        "try": "When you get a loss-limit alert, use 'Review position' to write down whether your thesis still holds."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Why write down 'what would prove me wrong' before entering a trade?",
+        "options": [
+          "The broker requires it",
+          "It is easier to judge clearly before you are emotionally invested",
+          "It lowers the fees",
+          "It guarantees a profit"
+        ],
+        "answer": 1,
+        "explain": "Pre-commitment reduces the pull of loss aversion and hope later on."
+      },
+      {
+        "q": "A stop-loss order is set at $90. The stock closes at $95, then opens next day at $80. What typically happens?",
+        "options": [
+          "You sell at exactly $90",
+          "You sell near $80, because the price gapped below the stop",
+          "The order is cancelled",
+          "You buy more"
+        ],
+        "answer": 1,
+        "explain": "Stops become market orders once triggered; a gap means a worse fill."
+      },
+      {
+        "q": "What is a downside of a very tight loss limit?",
+        "options": [
+          "It never triggers",
+          "Normal price noise triggers it often, causing repeated costly exits",
+          "It increases dividends",
+          "It hides losses"
+        ],
+        "answer": 1,
+        "explain": "That is a whipsaw: being shaken out by random movement, then paying to get back in."
+      }
+    ]
+  },
+  {
+    "id": "biases",
+    "title": "Your brain on markets: common biases",
+    "level": "Psychology",
+    "minutes": 5,
+    "summary": "The mistakes that cost the most are usually psychological, not analytical.",
+    "body": [
+      {
+        "ul": [
+          "**[[Loss aversion]]:** losses feel roughly twice as painful as equal gains feel good, so we avoid realising them.",
+          "**[[Disposition effect]]:** the tendency to sell winners too early and hold losers too long.",
+          "**[[Recency bias]] / FOMO:** assuming what just happened will continue, such as buying after a sharp rise because it 'keeps going up'.",
+          "**[[Overconfidence]]:** overrating our skill, which shows up as trading too often.",
+          "**[[Anchoring]]:** fixating on a reference price, such as 'I will sell when it gets back to what I paid'.",
+          "**[[Confirmation bias]]:** noticing evidence that supports our view and ignoring evidence against it."
+        ]
+      },
+      {
+        "p": "Biases cannot be switched off, but process helps: written reasons, pre-set exit conditions, sizing rules and regular review of your journal. This game's coach points out moments when these biases tend to appear, such as trading right after a big move."
+      },
+      {
+        "p": "Your purchase price is an anchor the market does not care about. Whether to keep a position is a question about its prospects from here, not about where you bought it."
+      },
+      {
+        "try": "At the end of a session, read the journal review. Which bias shows up most in your trades?"
+      }
+    ],
+    "quiz": [
+      {
+        "q": "You refuse to sell a losing stock until it returns to your purchase price. This is mainly…",
+        "options": [
+          "Diversification",
+          "Anchoring (and loss aversion)",
+          "Dollar-cost averaging",
+          "Trend following"
+        ],
+        "answer": 1,
+        "explain": "The purchase price is an anchor; the market does not know or care what you paid."
+      },
+      {
+        "q": "The disposition effect describes…",
+        "options": [
+          "Selling winners too early and holding losers too long",
+          "Buying only dividend stocks",
+          "Trading only at the open",
+          "Spreading money across sectors"
+        ],
+        "answer": 0,
+        "explain": "A well-documented pattern in individual investor behaviour."
+      },
+      {
+        "q": "A stock has risen 25% in a week and you feel you must buy before it goes higher. Which bias is most likely at work?",
+        "options": [
+          "Recency bias / FOMO",
+          "Anchoring to your cost",
+          "Home bias",
+          "Survivorship bias"
+        ],
+        "answer": 0,
+        "explain": "Recent moves feel predictive. Ask whether your reason would exist without the recent move."
+      }
+    ]
+  },
+  {
+    "id": "dividends",
+    "title": "Dividends, ex-dates, splits and withholding tax",
+    "level": "Mechanics",
+    "minutes": 4,
+    "summary": "Why the price drops on the ex-dividend date, why you only keep 70%, and why splits change nothing.",
+    "body": [
+      {
+        "p": "A [[dividend]] is cash a company pays to shareholders. To receive it you must own the shares before the [[ex-dividend date]]. On that date the share price typically drops by about the dividend amount, because the cash is leaving the company."
+      },
+      {
+        "p": "So a dividend is not free money: your shares are worth less by roughly what you receive. What matters is [[total return]], meaning price change plus dividends."
+      },
+      {
+        "h": "Withholding tax"
+      },
+      {
+        "p": "Non-US investors are generally subject to US [[withholding tax]] on US dividends, by default 30%. Some countries' tax treaties lower that rate; Singapore does not currently have such a treaty with the US, which is why this game uses 30%. A $1.00 dividend therefore arrives as $0.70."
+      },
+      {
+        "h": "Stock splits"
+      },
+      {
+        "p": "In a [[stock split]], for example 4-for-1, you get four shares for each one and the price divides by four. The value of your holding does not change. This game shows prices as they actually traded, so you will see the price drop and your share count rise on the split date."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "To receive a dividend you must hold the shares…",
+        "options": [
+          "On the payment date",
+          "Before the ex-dividend date",
+          "For at least one year",
+          "At the end of the quarter"
+        ],
+        "answer": 1,
+        "explain": "Buy on or after the ex-date and the dividend goes to the seller."
+      },
+      {
+        "q": "With 30% withholding tax, a $2.00 gross dividend on 10 shares credits…",
+        "options": [
+          "$20.00",
+          "$14.00",
+          "$6.00",
+          "$26.00"
+        ],
+        "answer": 1,
+        "explain": "10 × $2.00 = $20 gross, minus 30% ($6) = $14 net."
+      },
+      {
+        "q": "After a 4-for-1 split of a $400 stock, you hold…",
+        "options": [
+          "The same shares at $400",
+          "4× the shares at about $100, same total value",
+          "4× the shares at $400",
+          "A quarter of the shares at $1,600"
+        ],
+        "answer": 1,
+        "explain": "A split changes the number of slices, not the size of the cake."
+      }
+    ]
+  },
+  {
+    "id": "trend-following",
+    "title": "Moving averages and trend following",
+    "level": "Strategies",
+    "minutes": 5,
+    "summary": "How the trend bot works, and why a rule that follows past trends is not a forecast.",
+    "body": [
+      {
+        "p": "A [[moving average]] (MA) is the average closing price over the last N days. A 50-day MA tracks the medium-term trend; a 200-day MA the long-term trend. Turn them on in the chart to see them."
+      },
+      {
+        "p": "The trend bot in this game uses a classic [[crossover]] rule: hold a ticker while its 50-day MA is above its 200-day MA, and hold cash otherwise. It reacts to the past and does not predict."
+      },
+      {
+        "h": "Strengths and weaknesses"
+      },
+      {
+        "ul": [
+          "**Can sidestep long declines:** in a prolonged bear market the short MA falls below the long MA and the rule moves to cash.",
+          "**Lags:** MAs are averages of the past, so signals come late. It often sells after much of a fall and buys back after much of a rise.",
+          "**[[Whipsaw]]s:** in sideways markets the averages cross back and forth, generating costly trades.",
+          "**No guarantee:** whether such rules beat buy-and-hold varies a lot by period, market and costs."
+        ]
+      },
+      {
+        "p": "That is why the trend bot is labelled a **benchmark that follows past trends**: it gives you something mechanical to compare your decisions against, not a recommendation."
+      },
+      {
+        "try": "Turn on the MA50 and MA200 overlays and watch how far after a turning point they cross."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "The trend bot holds a ticker when…",
+        "options": [
+          "Its price is below its 200-day MA",
+          "Its 50-day MA is above its 200-day MA",
+          "It has paid a dividend",
+          "Its volume rises"
+        ],
+        "answer": 1,
+        "explain": "Short-term average above long-term average = trend up, by this rule's definition."
+      },
+      {
+        "q": "A key weakness of moving-average signals is that they…",
+        "options": [
+          "Use future data",
+          "Lag behind turning points because they average past prices",
+          "Only work on ETFs",
+          "Cannot be computed daily"
+        ],
+        "answer": 1,
+        "explain": "Averages smooth noise but react late."
+      },
+      {
+        "q": "In a choppy, sideways market a crossover rule tends to…",
+        "options": [
+          "Trade rarely",
+          "Generate many whipsaw trades and costs",
+          "Always beat buy-and-hold",
+          "Hold cash permanently"
+        ],
+        "answer": 1,
+        "explain": "The averages keep crossing as price wanders around them."
+      }
+    ]
+  },
+  {
+    "id": "backtesting",
+    "title": "Backtests, overfitting and walk-forward testing",
+    "level": "Strategies",
+    "minutes": 5,
+    "summary": "Why a strategy that looks amazing on past data often disappoints afterwards.",
+    "body": [
+      {
+        "p": "A [[backtest]] runs a rule on historical data. It is easy to fool yourself: try enough variations and one will look great by chance. That is [[overfitting]], where the rule fits the past's noise rather than anything persistent."
+      },
+      {
+        "h": "In-sample vs out-of-sample"
+      },
+      {
+        "p": "The [[walk-forward]] check in this game picks the best moving-average lengths using only the first 70% of the period ([[in-sample]]), then runs them unchanged on the last 30% ([[out-of-sample]]). The in-sample number is optimistic by construction because it was chosen for being best. The out-of-sample number is the more honest test, and even that is one short sample."
+      },
+      {
+        "h": "Other traps"
+      },
+      {
+        "ul": [
+          "**[[Lookahead bias]]:** accidentally using information that was not available at the time. This game's replay is built to prevent it.",
+          "**[[Survivorship bias]]:** testing only on companies that still exist today. The default tickers are well-known survivors, so choosing them already uses hindsight.",
+          "**Ignoring costs:** many strategies vanish once realistic fees and slippage are included."
+        ]
+      }
+    ],
+    "quiz": [
+      {
+        "q": "You test 50 parameter combinations and report the best one's return. The main danger is…",
+        "options": [
+          "Lookahead bias",
+          "Overfitting: the best result is partly luck",
+          "Withholding tax",
+          "Too few dividends"
+        ],
+        "answer": 1,
+        "explain": "With many tries, the winner is biased upward by chance."
+      },
+      {
+        "q": "In walk-forward testing, which result is the more honest estimate?",
+        "options": [
+          "In-sample",
+          "Out-of-sample",
+          "Both equally",
+          "Neither is computed"
+        ],
+        "answer": 1,
+        "explain": "Out-of-sample data was not used to choose the rule."
+      },
+      {
+        "q": "Testing a strategy only on companies that are big and successful today introduces…",
+        "options": [
+          "Survivorship bias",
+          "Slippage",
+          "Diversification",
+          "Anchoring"
+        ],
+        "answer": 0,
+        "explain": "Companies that failed or were delisted are missing, which flatters the results."
+      }
+    ]
+  },
+  {
+    "id": "benchmarks",
+    "title": "Benchmarks: buy-and-hold vs active trading",
+    "level": "Strategies",
+    "minutes": 4,
+    "summary": "A return only means something compared with a simple alternative.",
+    "body": [
+      {
+        "p": "A [[benchmark]] is a simple alternative you could have chosen instead, such as buying a broad index ETF on day one and doing nothing. If your active decisions earn less than that, the effort and risk did not pay off in that period."
+      },
+      {
+        "p": "Research on professional fund managers, such as S&P's SPIVA reports, has repeatedly found that most actively managed funds underperform their benchmark index over long periods, largely because of costs and how hard it is to consistently out-guess the market. Studies of individual traders often find that the most active traders tend to earn less after costs."
+      },
+      {
+        "p": "None of that means you should or should not trade. It means you should **measure** yourself honestly, which is what the end-of-session report is for: your return next to the trend bot, a total-world ETF, and each ticker held passively, all with the same costs."
+      },
+      {
+        "p": "Also compare **risk**, not just return: a higher return that came with a much deeper drawdown may not have been a better experience."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "What is the purpose of a benchmark?",
+        "options": [
+          "To tell you what to buy",
+          "To give a simple alternative to compare your results against",
+          "To reduce fees",
+          "To avoid taxes"
+        ],
+        "answer": 1,
+        "explain": "It answers: did my decisions add anything over a simple alternative?"
+      },
+      {
+        "q": "A major reason many active funds lag their index over long periods is…",
+        "options": [
+          "They cannot buy stocks",
+          "Costs and the difficulty of consistently out-guessing other investors",
+          "Indexes pay more tax",
+          "Indexes only hold bonds"
+        ],
+        "answer": 1,
+        "explain": "Higher costs plus a very competitive market make consistent outperformance rare."
+      },
+      {
+        "q": "You returned 12% with a 35% max drawdown; the benchmark returned 10% with a 15% max drawdown. A fair summary is…",
+        "options": [
+          "You were clearly better",
+          "You earned slightly more but took far more risk along the way",
+          "The benchmark was better on every measure",
+          "Drawdown does not matter"
+        ],
+        "answer": 1,
+        "explain": "Return and risk together tell the story."
+      }
+    ]
+  },
+  {
+    "id": "process",
+    "title": "Process vs outcome: keeping a trading journal",
+    "level": "Psychology",
+    "minutes": 4,
+    "summary": "A good decision can lose money and a bad one can win. Judge the process.",
+    "body": [
+      {
+        "p": "Markets are noisy. Over a single trade, luck can overwhelm skill. Judging a decision only by how it turned out is called [[resulting]], and it teaches the wrong lessons: a reckless bet that happened to win feels like skill."
+      },
+      {
+        "p": "A **process** can be judged: Did I write a clear reason? Did I size the position sensibly? Did I define what would prove me wrong, and did I respect it? Did I avoid trading purely because of a recent move? Did costs stay reasonable?"
+      },
+      {
+        "p": "That is what this game's **process score** measures, separately from your return. Over many sessions, a good process is what you can actually control and improve."
+      },
+      {
+        "h": "A simple journal review loop"
+      },
+      {
+        "ul": [
+          "Before: reason, size, and what would prove you wrong.",
+          "During: when something changes, write a review note instead of acting on impulse.",
+          "After: compare what happened with what you expected. Was the reasoning sound, regardless of the result?"
+        ]
+      }
+    ],
+    "quiz": [
+      {
+        "q": "'Resulting' means…",
+        "options": [
+          "Judging a decision only by its outcome",
+          "Calculating total return",
+          "Reinvesting dividends",
+          "Closing all positions"
+        ],
+        "answer": 0,
+        "explain": "Outcomes include luck; decisions should be judged on the information and reasoning available at the time."
+      },
+      {
+        "q": "Which can you most directly control?",
+        "options": [
+          "Next month's market return",
+          "Your process: sizing, written reasons, exit plans, costs",
+          "Whether a company beats earnings",
+          "Interest rates"
+        ],
+        "answer": 1,
+        "explain": "Process is in your hands; outcomes are partly luck."
+      },
+      {
+        "q": "A trade with no written reason made 20%. In a process review this is…",
+        "options": [
+          "Proof of skill",
+          "A good outcome from a weak process, and worth noticing",
+          "Irrelevant",
+          "A reason to trade more"
+        ],
+        "answer": 1,
+        "explain": "Good outcomes can hide bad habits that will cost you later."
+      }
+    ]
+  }
+]

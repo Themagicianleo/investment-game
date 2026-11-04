@@ -22,8 +22,8 @@ dev = ["pytest>=7"]
 [project.scripts]
 trade-sim = "trade_sim.cli:main"
 
-[tool.setuptools]
-packages = ["trade_sim"]
+[tool.setuptools.packages.find]
+include = ["trade_sim*"]
 
 [tool.setuptools.package-data]
 trade_sim = ["web_static/*"]

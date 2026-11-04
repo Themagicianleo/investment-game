@@ -1,0 +1,59 @@
+{
+  "tickers": [
+    "VT",
+    "AAPL",
+    "NVDA",
+    "INTC",
+    "AMD"
+  ],
+  "benchmark_ticker": "VT",
+  "starting_cash_usd": 10000.0,
+  "fractional_shares": false,
+  "costs": {
+    "half_spread_pct": 0.05,
+    "slippage_pct": 0.05,
+    "fee_per_order_usd": 0.99,
+    "fx_spread_pct": 0.15,
+    "fx_mode": "deposit"
+  },
+  "dividends": {
+    "withholding_tax_pct": 30.0
+  },
+  "alerts": {
+    "loss_limit_pct": 15.0,
+    "loss_limit_grace_days": 5
+  },
+  "session": {
+    "min_years_after_start": 2,
+    "seed": null
+  },
+  "data": {
+    "cache_dir": "data_cache",
+    "journal_path": "journal.csv",
+    "progress_path": "progress.json"
+  },
+  "trend_bot": {
+    "enabled": true,
+    "short_ma": 50,
+    "long_ma": 200,
+    "walk_forward": {
+      "enabled": true,
+      "train_fraction": 0.7,
+      "short_grid": [
+        20,
+        50,
+        100
+      ],
+      "long_grid": [
+        100,
+        150,
+        200,
+        250
+      ]
+    }
+  },
+  "review": {
+    "large_move_pct": 10.0,
+    "large_move_lookback_days": 5
+  }
+}

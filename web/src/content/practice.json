@@ -1,0 +1,40 @@
+{
+  "tickers": {
+    "GLOBX": [
+      "Fictional total-world index fund",
+      1.0,
+      0.002,
+      0.0,
+      0.02
+    ],
+    "STDY": [
+      "Fictional steady consumer-goods company",
+      0.6,
+      0.009,
+      5e-05,
+      0.03
+    ],
+    "ROKT": [
+      "Fictional high-growth software company",
+      1.4,
+      0.022,
+      0.0003,
+      0.0
+    ],
+    "CYCL": [
+      "Fictional cyclical industrial company",
+      1.25,
+      0.015,
+      -5e-05,
+      0.02
+    ],
+    "HYPE": [
+      "Fictional speculative tech start-up",
+      1.6,
+      0.03,
+      0.0,
+      0.0
+    ]
+  },
+  "benchmark": "GLOBX"
+}

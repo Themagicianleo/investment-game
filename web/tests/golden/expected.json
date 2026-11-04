@@ -1,0 +1,1772 @@
+{
+ "default": {
+  "overrides": {},
+  "start_idx": 300,
+  "start": {
+   "date": "2013-02-27",
+   "idx": 300,
+   "cash": 9985.0,
+   "equity": 9985.0,
+   "fees": 0.0,
+   "fx": 15.0,
+   "spread": 0.0,
+   "div_tax": 0.0,
+   "div_net": 0.0,
+   "orders": 0,
+   "positions": {},
+   "max_drawdown": 0.0,
+   "episodes": 0,
+   "longest_hold": 0,
+   "process": null
+  },
+  "steps": [
+   {
+    "step": [
+     "preview",
+     "buy",
+     "AAA",
+     3000
+    ],
+    "preview": {
+     "shares": 65.0,
+     "est_fill": 45.449430616511826,
+     "gross": 2954.212990073269,
+     "fee": 0.99,
+     "fx": 0.0,
+     "spread_slippage": 2.9512617283449245,
+     "costs": 3.9412617283449247,
+     "cost_pct": 0.001334115631333398,
+     "break_even_move": 0.002668231262666796,
+     "weight_after": 0.2955695271251802,
+     "cash_after": 7029.797009926731,
+     "prior_move": 0.04698791420560311
+    },
+    "tips": []
+   },
+   {
+    "step": [
+     "buy",
+     "AAA",
+     3000,
+     "core position for the test run",
+     "falls 15% below cost"
+    ]
+   },
+   {
+    "step": [
+     "buy",
+     "BBB",
+     2500,
+     "second holding to diversify",
+     "closes 15% under my cost"
+    ]
+   },
+   {
+    "step": [
+     "buy",
+     "VT",
+     2000,
+     "broad fund",
+     "x"
+    ]
+   },
+   {
+    "step": [
+     "hold",
+     1
+    ],
+    "advanced": 1,
+    "stopped": [],
+    "tips": [
+     "first-fill"
+    ],
+    "missions": [
+     "diversify",
+     "plan-first"
+    ],
+    "fills": [
+     [
+      "AAA",
+      "buy",
+      66.0,
+      45.38388303308295
+     ],
+     [
+      "BBB",
+      "buy",
+      37.0,
+      67.20275682456213
+     ],
+     [
+      "VT",
+      "buy",
+      9.0,
+      220.86992855743304
+     ]
+    ],
+    "dividends": [],
+    "splits": [],
+    "alerts": [],
+    "summary": {
+     "date": "2013-02-28",
+     "idx": 301,
+     "cash": 2512.3623602908297,
+     "equity": 9969.680933662827,
+     "fees": 2.9699999999999998,
+     "fx": 15.0,
+     "spread": 7.462205434273713,
+     "div_tax": 0.0,
+     "div_net": 0.0,
+     "orders": 3,
+     "positions": {
+      "AAA": [
+       66.0,
+       45.38388303308295
+      ],
+      "BBB": [
+       37.0,
+       67.20275682456213
+      ],
+      "VT": [
+       9.0,
+       220.86992855743304
+      ]
+     },
+     "max_drawdown": 0.001534207945635746,
+     "episodes": 0,
+     "longest_hold": 0,
+     "process": 92
+    }
+   },
+   {
+    "step": [
+     "hold",
+     30
+    ],
+    "advanced": 30,
+    "stopped": [
+     "Stopped after 25 day(s) because of a loss-limit alert."
+    ],
+    "tips": [
+     "loss-alert"
+    ],
+    "missions": [],
+    "fills": [],
+    "dividends": [],
+    "splits": [],
+    "alerts": [
+     [
+      "BBB",
+      "2013-04-04"
+     ]
+    ],
+    "summary": {
+     "date": "2013-04-11",
+     "idx": 331,
+     "cash": 2512.3623602908297,
+     "equity": 9523.069370875668,
+     "fees": 2.9699999999999998,
+     "fx": 15.0,
+     "spread": 7.462205434273713,
+     "div_tax": 0.0,
+     "div_net": 0.0,
+     "orders": 3,
+     "positions": {
+      "AAA": [
+       66.0,
+       45.38388303308295
+      ],
+      "BBB": [
+       37.0,
+       67.20275682456213
+      ],
+      "VT": [
+       9.0,
+       220.86992855743304
+      ]
+     },
+     "max_drawdown": 0.09949185393414628,
+     "episodes": 1,
+     "longest_hold": 30,
+     "process": 93
+    }
+   },
+   {
+    "step": [
+     "review",
+     "BBB",
+     "thesis still fine after a month"
+    ],
+    "missions": [
+     "review"
+    ]
+   },
+   {
+    "step": [
+     "sell",
+     "BBB",
+     1000,
+     "trim",
+     "it recovers fully"
+    ]
+   },
+   {
+    "step": [
+     "hold",
+     5
+    ],
+    "advanced": 5,
+    "stopped": [],
+    "tips": [],
+    "missions": [],
+    "fills": [
+     [
+      "BBB",
+      "sell",
+      17.0,
+      58.54526708279837
+     ]
+    ],
+    "dividends": [],
+    "splits": [],
+    "alerts": [],
+    "summary": {
+     "date": "2013-04-18",
+     "idx": 336,
+     "cash": 3506.641900698402,
+     "equity": 9553.945619693373,
+     "fees": 3.96,
+     "fx": 15.0,
+     "spread": 8.458471240487519,
+     "div_tax": 0.0,
+     "div_net": 0.0,
+     "orders": 4,
+     "positions": {
+      "AAA": [
+       66.0,
+       45.38388303308295
+      ],
+      "BBB": [
+       20.0,
+       67.20275682456213
+      ],
+      "VT": [
+       9.0,
+       220.86992855743304
+      ]
+     },
+     "max_drawdown": 0.09949185393414628,
+     "episodes": 1,
+     "longest_hold": 35,
+     "process": 90
+    }
+   },
+   {
+    "step": [
+     "preview",
+     "sell",
+     "AAA",
+     "all"
+    ],
+    "preview": {
+     "shares": 66.0,
+     "est_fill": 45.30998219772303,
+     "gross": 2990.45882504972,
+     "fee": 0.99,
+     "fx": 0.0,
+     "spread_slippage": 2.993452277327047,
+     "costs": 3.9834522773270473,
+     "cost_pct": 0.0013320538788093221,
+     "break_even_move": null,
+     "weight_after": 0.0,
+     "cash_after": 6496.110725748122,
+     "prior_move": -0.01058580184178226
+    },
+    "tips": []
+   },
+   {
+    "step": [
+     "sell",
+     "AAA",
+     "all",
+     "taking it off",
+     "n/a here"
+    ]
+   },
+   {
+    "step": [
+     "hold",
+     120
+    ],
+    "advanced": 120,
+    "stopped": [
+     "Stopped after 5 day(s) because of a loss-limit alert.",
+     "Stopped after 10 day(s) because of a loss-limit alert.",
+     "Stopped after 18 day(s) because of a loss-limit alert.",
+     "Stopped after 4 day(s) because of a loss-limit alert."
+    ],
+    "tips": [
+     "loss-alert",
+     "loss-alert",
+     "dividend",
+     "loss-alert",
+     "loss-alert"
+    ],
+    "missions": [
+     "dividend",
+     "patience"
+    ],
+    "fills": [
+     [
+      "AAA",
+      "sell",
+      66.0,
+      45.612233784482925
+     ]
+    ],
+    "dividends": [
+     [
+      "VT",
+      5.5062
+     ],
+     [
+      "VT",
+      5.95917
+     ]
+    ],
+    "splits": [],
+    "alerts": [
+     [
+      "BBB",
+      "2013-04-25"
+     ],
+     [
+      "BBB",
+      "2013-05-09"
+     ],
+     [
+      "BBB",
+      "2013-06-04"
+     ],
+     [
+      "BBB",
+      "2013-06-10"
+     ]
+    ],
+    "summary": {
+     "date": "2013-10-03",
+     "idx": 456,
+     "cash": 6527.524700474275,
+     "equity": 10029.015054041916,
+     "fees": 4.95,
+     "fx": 15.0,
+     "spread": 11.471892091113894,
+     "div_tax": 4.913729999999999,
+     "div_net": 11.46537,
+     "orders": 5,
+     "positions": {
+      "BBB": [
+       20.0,
+       67.20275682456213
+      ],
+      "VT": [
+       9.0,
+       220.86992855743304
+      ]
+     },
+     "max_drawdown": 0.09949185393414628,
+     "episodes": 5,
+     "longest_hold": 155,
+     "process": 84
+    }
+   },
+   {
+    "step": [
+     "preview",
+     "buy",
+     "CCC",
+     150
+    ],
+    "preview": {
+     "shares": 0.0,
+     "est_fill": 694.9780410706943,
+     "gross": 0.0,
+     "fee": 0.99,
+     "fx": 0.0,
+     "spread_slippage": 0.0,
+     "costs": 0.99,
+     "cost_pct": null,
+     "break_even_move": null,
+     "weight_after": 0.0,
+     "cash_after": 6526.534700474275,
+     "prior_move": 0.037593104018688095
+    },
+    "tips": [
+     "no-shares"
+    ]
+   },
+   {
+    "step": [
+     "buy",
+     "CCC",
+     4000,
+     "y",
+     "z"
+    ]
+   },
+   {
+    "step": [
+     "hold",
+     200
+    ],
+    "advanced": 200,
+    "stopped": [
+     "Stopped after 5 day(s) because of a loss-limit alert.",
+     "Stopped after 8 day(s) because of a loss-limit alert.",
+     "Stopped after 7 day(s) because of a loss-limit alert.",
+     "Stopped after 3 day(s) because of a loss-limit alert.",
+     "Stopped after 2 day(s) because of a loss-limit alert.",
+     "Stopped after 3 day(s) because of a loss-limit alert.",
+     "Stopped after 12 day(s) because of a loss-limit alert.",
+     "Stopped after 9 day(s) because of a loss-limit alert.",
+     "Stopped after 117 day(s) because of a loss-limit alert.",
+     "Stopped after 13 day(s) because of a loss-limit alert.",
+     "Stopped after 5 day(s) because of a loss-limit alert."
+    ],
+    "tips": [
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "split",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert"
+    ],
+    "missions": [
+     "full-year"
+    ],
+    "fills": [
+     [
+      "CCC",
+      "buy",
+      6.0,
+      659.9341674401625
+     ]
+    ],
+    "dividends": [
+     [
+      "VT",
+      6.24267
+     ],
+     [
+      "VT",
+      6.69753
+     ],
+     [
+      "VT",
+      7.1649899999999995
+     ]
+    ],
+    "splits": [
+     [
+      "CCC",
+      4.0,
+      24.0
+     ]
+    ],
+    "alerts": [
+     [
+      "BBB",
+      "2013-10-10"
+     ],
+     [
+      "BBB",
+      "2013-10-22"
+     ],
+     [
+      "CCC",
+      "2013-10-31"
+     ],
+     [
+      "CCC",
+      "2013-11-05"
+     ],
+     [
+      "CCC",
+      "2013-11-07"
+     ],
+     [
+      "BBB",
+      "2013-11-12"
+     ],
+     [
+      "BBB",
+      "2013-11-28"
+     ],
+     [
+      "BBB",
+      "2013-12-11"
+     ],
+     [
+      "BBB",
+      "2014-05-23"
+     ],
+     [
+      "BBB",
+      "2014-06-11"
+     ],
+     [
+      "BBB",
+      "2014-06-18"
+     ]
+    ],
+    "summary": {
+     "date": "2014-07-10",
+     "idx": 656,
+     "cash": 2587.034885833301,
+     "equity": 9426.91977953065,
+     "fees": 5.94,
+     "fx": 15.0,
+     "spread": 15.427541446398898,
+     "div_tax": 13.53024,
+     "div_net": 31.57056,
+     "orders": 6,
+     "positions": {
+      "BBB": [
+       20.0,
+       67.20275682456213
+      ],
+      "CCC": [
+       24.0,
+       164.98354186004062
+      ],
+      "VT": [
+       9.0,
+       220.86992855743304
+      ]
+     },
+     "max_drawdown": 0.16559011618703146,
+     "episodes": 16,
+     "longest_hold": 355,
+     "process": 82
+    }
+   },
+   {
+    "step": [
+     "buy",
+     "AAA",
+     1500,
+     "adding again after a while",
+     "drops 15% from here"
+    ]
+   },
+   {
+    "step": [
+     "hold",
+     150
+    ],
+    "advanced": 150,
+    "stopped": [
+     "Stopped after 1 day(s) because of a loss-limit alert.",
+     "Stopped after 31 day(s) because of a loss-limit alert.",
+     "Stopped after 11 day(s) because of a loss-limit alert."
+    ],
+    "tips": [
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "drawdown"
+    ],
+    "missions": [],
+    "fills": [
+     [
+      "AAA",
+      "buy",
+      29.0,
+      50.6390584485917
+     ]
+    ],
+    "dividends": [
+     [
+      "AAA",
+      3.93211
+     ],
+     [
+      "VT",
+      6.827310000000001
+     ],
+     [
+      "AAA",
+      2.9394400000000003
+     ],
+     [
+      "VT",
+      7.41447
+     ],
+     [
+      "AAA",
+      2.38931
+     ],
+     [
+      "VT",
+      7.41888
+     ]
+    ],
+    "splits": [],
+    "alerts": [
+     [
+      "BBB",
+      "2014-07-11"
+     ],
+     [
+      "CCC",
+      "2014-07-11"
+     ],
+     [
+      "AAA",
+      "2014-08-25"
+     ],
+     [
+      "BBB",
+      "2014-09-09"
+     ]
+    ],
+    "summary": {
+     "date": "2015-02-05",
+     "idx": 806,
+     "cash": 1148.4337108241416,
+     "equity": 9510.51860467009,
+     "fees": 6.930000000000001,
+     "fx": 15.0,
+     "spread": 16.894607075778488,
+     "div_tax": 26.782320000000002,
+     "div_net": 62.49208000000001,
+     "orders": 7,
+     "positions": {
+      "AAA": [
+       29.0,
+       50.6390584485917
+      ],
+      "BBB": [
+       20.0,
+       67.20275682456213
+      ],
+      "CCC": [
+       24.0,
+       164.98354186004062
+      ],
+      "VT": [
+       9.0,
+       220.86992855743304
+      ]
+     },
+     "max_drawdown": 0.16559011618703146,
+     "episodes": 20,
+     "longest_hold": 505,
+     "process": 79
+    }
+   }
+  ],
+  "end_missions": [
+   "cost-control"
+  ],
+  "entries": [
+   {
+    "session_id": "golden",
+    "placed_date": "2013-02-27",
+    "fill_date": "2013-02-28",
+    "action": "buy",
+    "ticker": "AAA",
+    "prior_move_pct": 4.7,
+    "loss_alert_active": false,
+    "reason": "core position for the test run",
+    "prove_wrong": "falls 15% below cost",
+    "status": "filled",
+    "shares": 66.0,
+    "open_price": 45.3385,
+    "fill_price": 45.3839,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.0,
+    "spread_slippage_usd": 2.99,
+    "cash_change_usd": -2996.33
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2013-02-27",
+    "fill_date": "2013-02-28",
+    "action": "buy",
+    "ticker": "BBB",
+    "prior_move_pct": -3.2,
+    "loss_alert_active": false,
+    "reason": "second holding to diversify",
+    "prove_wrong": "closes 15% under my cost",
+    "status": "filled",
+    "shares": 37.0,
+    "open_price": 67.1356,
+    "fill_price": 67.2028,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.0,
+    "spread_slippage_usd": 2.48,
+    "cash_change_usd": -2487.49
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2013-02-27",
+    "fill_date": "2013-02-28",
+    "action": "buy",
+    "ticker": "VT",
+    "prior_move_pct": 1.62,
+    "loss_alert_active": false,
+    "reason": "broad fund",
+    "prove_wrong": "x",
+    "status": "filled",
+    "shares": 9.0,
+    "open_price": 220.6493,
+    "fill_price": 220.8699,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.0,
+    "spread_slippage_usd": 1.99,
+    "cash_change_usd": -1988.82
+   },
+   {
+    "session_id": "golden",
+    "status": "review",
+    "placed_date": "2013-04-11",
+    "fill_date": "2013-04-11",
+    "action": "review",
+    "ticker": "BBB",
+    "shares": 37.0,
+    "loss_alert_active": false,
+    "reason": "thesis still fine after a month",
+    "prove_wrong": "",
+    "note": "close $57.54, avg cost $67.20"
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2013-04-11",
+    "fill_date": "2013-04-12",
+    "action": "sell",
+    "ticker": "BBB",
+    "prior_move_pct": 1.81,
+    "loss_alert_active": false,
+    "reason": "trim",
+    "prove_wrong": "it recovers fully",
+    "status": "filled",
+    "shares": 17.0,
+    "open_price": 58.6039,
+    "fill_price": 58.5453,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.0,
+    "spread_slippage_usd": 1.0,
+    "cash_change_usd": 994.28
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2013-04-18",
+    "fill_date": "2013-04-19",
+    "action": "sell",
+    "ticker": "AAA",
+    "prior_move_pct": -1.06,
+    "loss_alert_active": false,
+    "reason": "taking it off",
+    "prove_wrong": "n/a here",
+    "status": "filled",
+    "shares": 66.0,
+    "open_price": 45.6579,
+    "fill_price": 45.6122,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.0,
+    "spread_slippage_usd": 3.01,
+    "cash_change_usd": 3009.42
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2013-10-03",
+    "fill_date": "2013-10-04",
+    "action": "buy",
+    "ticker": "CCC",
+    "prior_move_pct": 3.76,
+    "loss_alert_active": false,
+    "reason": "y",
+    "prove_wrong": "z",
+    "status": "filled",
+    "shares": 6.0,
+    "open_price": 659.2749,
+    "fill_price": 659.9342,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.0,
+    "spread_slippage_usd": 3.96,
+    "cash_change_usd": -3960.6
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2014-07-10",
+    "fill_date": "2014-07-11",
+    "action": "buy",
+    "ticker": "AAA",
+    "prior_move_pct": -3.26,
+    "loss_alert_active": false,
+    "reason": "adding again after a while",
+    "prove_wrong": "drops 15% from here",
+    "status": "filled",
+    "shares": 29.0,
+    "open_price": 50.5885,
+    "fill_price": 50.6391,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.0,
+    "spread_slippage_usd": 1.47,
+    "cash_change_usd": -1469.52
+   }
+  ],
+  "report": {
+   "start": "2013-02-27",
+   "end": "2015-02-05",
+   "trading_days": 506,
+   "user": {
+    "starting_cash": 10000.0,
+    "final_value": 9510.51860467009,
+    "return": -0.04894813953299104,
+    "orders": 7,
+    "fees": 6.930000000000001,
+    "fx": 15.0,
+    "spread_slippage": 16.894607075778488,
+    "dividend_tax": 26.782320000000002,
+    "dividends_net": 62.49208000000001,
+    "total_fees_and_taxes": 65.60692707577849,
+    "cancelled_orders": 0,
+    "max_drawdown": 0.16559011618703146
+   },
+   "trend_bot": {
+    "name": "Trend bot MA50/MA200",
+    "start": "2013-02-27",
+    "end": "2015-02-05",
+    "final_value": 9088.486728042519,
+    "return": -0.09115132719574814,
+    "trades": 13,
+    "costs": 56.084551470547,
+    "dividend_tax": 31.95633,
+    "max_drawdown": 0.1317508391122172
+   },
+   "trend_bot_rule": "Follows PAST trends: holds a ticker while its 50-day moving average is above its 200-day moving average, otherwise cash.",
+   "benchmark": {
+    "name": "Buy & hold VT",
+    "start": "2013-02-27",
+    "end": "2015-02-05",
+    "final_value": 13397.99174872522,
+    "return": 0.339799174872522,
+    "trades": 1,
+    "costs": 25.919217567515425,
+    "dividend_tax": 114.06689999999999,
+    "max_drawdown": 0.10920275508573474
+   },
+   "tickers": [
+    {
+     "name": "Buy & hold AAA",
+     "start": "2013-02-27",
+     "end": "2015-02-05",
+     "final_value": 6465.408103458412,
+     "return": -0.3534591896541588,
+     "trades": 1,
+     "costs": 25.919141243000503,
+     "dividend_tax": 96.15852,
+     "max_drawdown": 0.5152508547340213
+    },
+    {
+     "name": "Buy & hold BBB",
+     "start": "2013-02-27",
+     "end": "2015-02-05",
+     "final_value": 9838.292991225304,
+     "return": -0.016170700877469635,
+     "trades": 1,
+     "costs": 25.92607193809561,
+     "dividend_tax": 0.0,
+     "max_drawdown": 0.4272573517842363
+    },
+    {
+     "name": "Buy & hold CCC",
+     "start": "2013-02-27",
+     "end": "2015-02-05",
+     "final_value": 7880.165297112525,
+     "return": -0.21198347028874753,
+     "trades": 1,
+     "costs": 25.883601866375322,
+     "dividend_tax": 0.0,
+     "max_drawdown": 0.52732026428735
+    },
+    {
+     "name": "Buy & hold VT",
+     "start": "2013-02-27",
+     "end": "2015-02-05",
+     "final_value": 13397.99174872522,
+     "return": 0.339799174872522,
+     "trades": 1,
+     "costs": 25.919217567515425,
+     "dividend_tax": 114.06689999999999,
+     "max_drawdown": 0.10920275508573474
+    }
+   ],
+   "walk_forward": {
+    "train": {
+     "start": "2013-02-27",
+     "end": "2014-07-07",
+     "days": 354
+    },
+    "test": {
+     "start": "2014-07-08",
+     "end": "2015-02-05",
+     "days": 153
+    },
+    "chosen_rule": "MA100/MA200",
+    "chosen_in_sample": -0.0055019784080792,
+    "chosen_out_of_sample": 0.008712484158887035,
+    "default_rule": "MA50/MA200",
+    "default_in_sample": -0.1279314514901273,
+    "default_out_of_sample": 0.03155383431549641,
+    "candidates": [
+     {
+      "rule": "MA100/MA200",
+      "in_sample": -0.0055019784080792
+     },
+     {
+      "rule": "MA100/MA150",
+      "in_sample": -0.007211403517653925
+     },
+     {
+      "rule": "MA100/MA250",
+      "in_sample": -0.07600116999312412
+     },
+     {
+      "rule": "MA20/MA250",
+      "in_sample": -0.07879837257891398
+     },
+     {
+      "rule": "MA50/MA250",
+      "in_sample": -0.08003496436185975
+     },
+     {
+      "rule": "MA50/MA150",
+      "in_sample": -0.08596758927368242
+     },
+     {
+      "rule": "MA20/MA200",
+      "in_sample": -0.0939355296976897
+     },
+     {
+      "rule": "MA50/MA200",
+      "in_sample": -0.1279314514901273
+     },
+     {
+      "rule": "MA20/MA100",
+      "in_sample": -0.1677589486113451
+     },
+     {
+      "rule": "MA20/MA150",
+      "in_sample": -0.17763914040760043
+     },
+     {
+      "rule": "MA50/MA100",
+      "in_sample": -0.19070615853263462
+     }
+    ],
+    "caveat": "The in-sample figure was selected *because* it was the best on that data, so it is optimistic by construction. Only the out-of-sample figure is a (single, small) test, and it is not proof."
+   },
+   "walk_forward_skipped": null,
+   "notices": [
+    "Educational only. This simulator does not give buy or sell advice.",
+    "Past performance does not predict future results.",
+    "The trend bot is a comparison, not a recommendation."
+   ],
+   "review": [
+    {
+     "title": "Skipping the loss limit",
+     "count": 7,
+     "detail": "A loss-limit alert fired and within 5 trading days the position was not reduced, not reviewed in the journal, and did not recover (AAA, BBB, CCC). Holding can be a deliberate choice; the question is whether your 'what would prove me wrong' note had already come true."
+    },
+    {
+     "title": "Short or missing journal reasoning",
+     "count": 4,
+     "detail": "Some entries had a very short reason or no clear 'what would prove me wrong' condition, which makes it hard to review the decision later."
+    }
+   ],
+   "process": {
+    "score": 79,
+    "components": [
+     {
+      "key": "journal",
+      "name": "Clear written reasoning",
+      "max": 20,
+      "lesson": "process",
+      "detail": "3 of 7 trades had a clear reason and a 'prove me wrong' condition.",
+      "score": 8.6
+     },
+     {
+      "key": "calm",
+      "name": "Not reacting to big moves",
+      "max": 20,
+      "lesson": "biases",
+      "detail": "0 of 7 trades came right after a move of 10% or more.",
+      "score": 20.0
+     },
+     {
+      "key": "exits",
+      "name": "Responding to loss limits",
+      "max": 20,
+      "lesson": "exit-plans",
+      "detail": "13 of 20 loss-limit alerts got a response (sale, review note or recovery) within 5 days.",
+      "score": 13.0
+     },
+     {
+      "key": "sizing",
+      "name": "Position sizing",
+      "max": 20,
+      "lesson": "sizing",
+      "detail": "On 429 of 506 invested days no single stock was over 40% of your portfolio (a broad index fund such as VT is already diversified, so it is not counted).",
+      "score": 17.0
+     },
+     {
+      "key": "costs",
+      "name": "Keeping costs down",
+      "max": 20,
+      "lesson": "costs",
+      "detail": "Trading costs were 0.24% of starting cash (full marks at 0.5% or less, none at 2% or more).",
+      "score": 20.0
+     }
+    ],
+    "note": "Measures decision habits, not profit. A good process can lose money and a bad one can win."
+   }
+  }
+ },
+ "fractional_per_buy": {
+  "overrides": {
+   "fractional_shares": true,
+   "costs": {
+    "fx_mode": "per_buy"
+   },
+   "alerts": {
+    "loss_limit_pct": 5.0
+   }
+  },
+  "start_idx": 300,
+  "start": {
+   "date": "2013-02-27",
+   "idx": 300,
+   "cash": 10000.0,
+   "equity": 10000.0,
+   "fees": 0.0,
+   "fx": 0.0,
+   "spread": 0.0,
+   "div_tax": 0.0,
+   "div_net": 0.0,
+   "orders": 0,
+   "positions": {},
+   "max_drawdown": 0.0,
+   "episodes": 0,
+   "longest_hold": 0,
+   "process": null
+  },
+  "steps": [
+   {
+    "step": [
+     "buy",
+     "CCC",
+     6000,
+     "concentrated test position",
+     "loses 5% from cost"
+    ]
+   },
+   {
+    "step": [
+     "buy",
+     "AAA",
+     1234.56,
+     "fractional buy",
+     "falls 5% below cost"
+    ]
+   },
+   {
+    "step": [
+     "hold",
+     60
+    ],
+    "advanced": 60,
+    "stopped": [
+     "Stopped after 3 day(s) because of a loss-limit alert.",
+     "Stopped after 7 day(s) because of a loss-limit alert.",
+     "Stopped after 13 day(s) because of a loss-limit alert.",
+     "Stopped after 18 day(s) because of a loss-limit alert.",
+     "Stopped after 5 day(s) because of a loss-limit alert.",
+     "Stopped after 2 day(s) because of a loss-limit alert."
+    ],
+    "tips": [
+     "first-fill",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "dividend",
+     "drawdown"
+    ],
+    "missions": [
+     "dividend",
+     "plan-first"
+    ],
+    "fills": [
+     [
+      "CCC",
+      "buy",
+      7.862913,
+      761.8073437109475
+     ],
+     [
+      "AAA",
+      "buy",
+      27.140084,
+      45.38388303308295
+     ]
+    ],
+    "dividends": [
+     [
+      "AAA",
+      3.6856234072000005
+     ]
+    ],
+    "splits": [],
+    "alerts": [
+     [
+      "CCC",
+      "2013-03-04"
+     ],
+     [
+      "AAA",
+      "2013-03-13"
+     ],
+     [
+      "CCC",
+      "2013-04-01"
+     ],
+     [
+      "CCC",
+      "2013-04-25"
+     ],
+     [
+      "CCC",
+      "2013-05-02"
+     ],
+     [
+      "CCC",
+      "2013-05-06"
+     ]
+    ],
+    "summary": {
+     "date": "2013-05-22",
+     "idx": 360,
+     "cash": 2769.1257383866905,
+     "equity": 8571.407258272515,
+     "fees": 1.98,
+     "fx": 10.832620896186485,
+     "spread": 7.214532731392349,
+     "div_tax": 1.5795528888,
+     "div_net": 3.6856234072000005,
+     "orders": 2,
+     "positions": {
+      "AAA": [
+       27.140084,
+       45.38388303308295
+      ],
+      "CCC": [
+       7.862913,
+       761.8073437109475
+      ]
+     },
+     "max_drawdown": 0.18017152849124363,
+     "episodes": 6,
+     "longest_hold": 59,
+     "process": 60
+    }
+   },
+   {
+    "step": [
+     "sell",
+     "CCC",
+     1500.5,
+     "partial sale",
+     "n/a"
+    ]
+   },
+   {
+    "step": [
+     "hold",
+     300
+    ],
+    "advanced": 300,
+    "stopped": [
+     "Stopped after 2 day(s) because of a loss-limit alert.",
+     "Stopped after 2 day(s) because of a loss-limit alert.",
+     "Stopped after 6 day(s) because of a loss-limit alert."
+    ],
+    "tips": [
+     "loss-alert",
+     "loss-alert",
+     "loss-alert",
+     "split"
+    ],
+    "missions": [
+     "full-year",
+     "patience"
+    ],
+    "fills": [
+     [
+      "CCC",
+      "sell",
+      2.607261,
+      575.5080872987501
+     ]
+    ],
+    "dividends": [
+     [
+      "AAA",
+      3.5241399074000004
+     ],
+     [
+      "AAA",
+      3.75591622476
+     ],
+     [
+      "AAA",
+      4.07318380672
+     ],
+     [
+      "AAA",
+      4.09978108904
+     ]
+    ],
+    "splits": [
+     [
+      "CCC",
+      4.0,
+      21.022607999999998
+     ]
+    ],
+    "alerts": [
+     [
+      "AAA",
+      "2013-05-24"
+     ],
+     [
+      "AAA",
+      "2013-05-28"
+     ],
+     [
+      "AAA",
+      "2013-06-05"
+     ]
+    ],
+    "summary": {
+     "date": "2014-07-16",
+     "idx": 660,
+     "cash": 4284.088550613238,
+     "equity": 8792.154791764246,
+     "fees": 2.9699999999999998,
+     "fx": 10.832620896186485,
+     "spread": 8.71653452438406,
+     "div_tax": 8.20227618648,
+     "div_net": 19.13864443512,
+     "orders": 3,
+     "positions": {
+      "AAA": [
+       27.140084,
+       45.38388303308295
+      ],
+      "CCC": [
+       21.022607999999998,
+       190.45183592773688
+      ]
+     },
+     "max_drawdown": 0.2608357423041787,
+     "episodes": 9,
+     "longest_hold": 359,
+     "process": 74
+    }
+   },
+   {
+    "step": [
+     "buy",
+     "VT",
+     500,
+     "small",
+     "x"
+    ]
+   },
+   {
+    "step": [
+     "hold",
+     100
+    ],
+    "advanced": 100,
+    "stopped": [
+     "Stopped after 28 day(s) because of a loss-limit alert.",
+     "Stopped after 62 day(s) because of a loss-limit alert.",
+     "Stopped after 3 day(s) because of a loss-limit alert."
+    ],
+    "tips": [
+     "loss-alert",
+     "loss-alert",
+     "loss-alert"
+    ],
+    "missions": [],
+    "fills": [
+     [
+      "VT",
+      "buy",
+      1.834852,
+      271.5546033658456
+     ]
+    ],
+    "dividends": [
+     [
+      "AAA",
+      3.67992398956
+     ],
+     [
+      "VT",
+      1.3919003786800002
+     ],
+     [
+      "AAA",
+      2.7509189142400006
+     ],
+     [
+      "VT",
+      1.5116061231600002
+     ]
+    ],
+    "splits": [],
+    "alerts": [
+     [
+      "AAA",
+      "2014-08-25"
+     ],
+     [
+      "CCC",
+      "2014-11-19"
+     ],
+     [
+      "CCC",
+      "2014-11-24"
+     ]
+    ],
+    "summary": {
+     "date": "2014-12-03",
+     "idx": 760,
+     "cash": 3793.4229991632074,
+     "equity": 9311.421063262205,
+     "fees": 3.96,
+     "fx": 11.580014656829029,
+     "spread": 9.214299266736678,
+     "div_tax": 12.202711646040001,
+     "div_net": 28.472993840759997,
+     "orders": 4,
+     "positions": {
+      "AAA": [
+       27.140084,
+       45.38388303308295
+      ],
+      "CCC": [
+       21.022607999999998,
+       190.45183592773688
+      ],
+      "VT": [
+       1.834852,
+       271.5546033658456
+      ]
+     },
+     "max_drawdown": 0.2608357423041787,
+     "episodes": 12,
+     "longest_hold": 459,
+     "process": 73
+    }
+   },
+   {
+    "step": [
+     "sell",
+     "AAA",
+     "all",
+     "exit",
+     "n/a"
+    ]
+   },
+   {
+    "step": [
+     "hold",
+     10
+    ],
+    "advanced": 10,
+    "stopped": [],
+    "tips": [],
+    "missions": [],
+    "fills": [
+     [
+      "AAA",
+      "sell",
+      27.140084,
+      32.72867608949503
+     ]
+    ],
+    "dividends": [],
+    "splits": [],
+    "alerts": [],
+    "summary": {
+     "date": "2014-12-17",
+     "idx": 770,
+     "cash": 4680.692017440894,
+     "equity": 9395.775681578762,
+     "fees": 4.95,
+     "fx": 11.580014656829029,
+     "spread": 10.103447433180795,
+     "div_tax": 12.202711646040001,
+     "div_net": 28.472993840759997,
+     "orders": 5,
+     "positions": {
+      "CCC": [
+       21.022607999999998,
+       190.45183592773688
+      ],
+      "VT": [
+       1.834852,
+       271.5546033658456
+      ]
+     },
+     "max_drawdown": 0.2608357423041787,
+     "episodes": 12,
+     "longest_hold": 469,
+     "process": 71
+    }
+   }
+  ],
+  "end_missions": [
+   "cost-control"
+  ],
+  "entries": [
+   {
+    "session_id": "golden",
+    "placed_date": "2013-02-27",
+    "fill_date": "2013-02-28",
+    "action": "buy",
+    "ticker": "CCC",
+    "prior_move_pct": 1.62,
+    "loss_alert_active": false,
+    "reason": "concentrated test position",
+    "prove_wrong": "loses 5% from cost",
+    "status": "filled",
+    "shares": 7.862913,
+    "open_price": 761.0463,
+    "fill_price": 761.8073,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 8.99,
+    "spread_slippage_usd": 5.98,
+    "cash_change_usd": -6000.0
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2013-02-27",
+    "fill_date": "2013-02-28",
+    "action": "buy",
+    "ticker": "AAA",
+    "prior_move_pct": 4.7,
+    "loss_alert_active": false,
+    "reason": "fractional buy",
+    "prove_wrong": "falls 5% below cost",
+    "status": "filled",
+    "shares": 27.140084,
+    "open_price": 45.3385,
+    "fill_price": 45.3839,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 1.85,
+    "spread_slippage_usd": 1.23,
+    "cash_change_usd": -1234.56
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2013-05-22",
+    "fill_date": "2013-05-23",
+    "action": "sell",
+    "ticker": "CCC",
+    "prior_move_pct": -3.74,
+    "loss_alert_active": true,
+    "reason": "partial sale",
+    "prove_wrong": "n/a",
+    "status": "filled",
+    "shares": 2.607261,
+    "open_price": 576.0842,
+    "fill_price": 575.5081,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.0,
+    "spread_slippage_usd": 1.5,
+    "cash_change_usd": 1499.51
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2014-07-16",
+    "fill_date": "2014-07-17",
+    "action": "buy",
+    "ticker": "VT",
+    "prior_move_pct": 1.49,
+    "loss_alert_active": false,
+    "reason": "small",
+    "prove_wrong": "x",
+    "status": "filled",
+    "shares": 1.834852,
+    "open_price": 271.2833,
+    "fill_price": 271.5546,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.75,
+    "spread_slippage_usd": 0.5,
+    "cash_change_usd": -500.0
+   },
+   {
+    "session_id": "golden",
+    "placed_date": "2014-12-03",
+    "fill_date": "2014-12-04",
+    "action": "sell",
+    "ticker": "AAA",
+    "prior_move_pct": 1.46,
+    "loss_alert_active": true,
+    "reason": "exit",
+    "prove_wrong": "n/a",
+    "status": "filled",
+    "shares": 27.140084,
+    "open_price": 32.7614,
+    "fill_price": 32.7287,
+    "fee_usd": 0.99,
+    "fx_cost_usd": 0.0,
+    "spread_slippage_usd": 0.89,
+    "cash_change_usd": 887.27
+   }
+  ],
+  "report": {
+   "start": "2013-02-27",
+   "end": "2014-12-17",
+   "trading_days": 470,
+   "user": {
+    "starting_cash": 10000.0,
+    "final_value": 9395.775681578762,
+    "return": -0.060422431842123814,
+    "orders": 5,
+    "fees": 4.95,
+    "fx": 11.580014656829029,
+    "spread_slippage": 10.103447433180795,
+    "dividend_tax": 12.202711646040001,
+    "dividends_net": 28.472993840759997,
+    "total_fees_and_taxes": 38.83617373604982,
+    "cancelled_orders": 0,
+    "max_drawdown": 0.2608357423041787
+   },
+   "trend_bot": {
+    "name": "Trend bot MA50/MA200",
+    "start": "2013-02-27",
+    "end": "2014-12-17",
+    "final_value": 9591.164649560817,
+    "return": -0.040883535043918395,
+    "trades": 12,
+    "costs": 63.43749660870059,
+    "dividend_tax": 28.815512209199998,
+    "max_drawdown": 0.1400914465250308
+   },
+   "trend_bot_rule": "Follows PAST trends: holds a ticker while its 50-day moving average is above its 200-day moving average, otherwise cash.",
+   "benchmark": {
+    "name": "Buy & hold VT",
+    "start": "2013-02-27",
+    "end": "2014-12-17",
+    "final_value": 13004.194819063578,
+    "return": 0.3004194819063577,
+    "trades": 1,
+    "costs": 25.940110287632596,
+    "dividend_tax": 98.61265001112,
+    "max_drawdown": 0.10957985770163614
+   },
+   "tickers": [
+    {
+     "name": "Buy & hold AAA",
+     "start": "2013-02-27",
+     "end": "2014-12-17",
+     "final_value": 6457.92305728001,
+     "return": -0.35420769427199905,
+     "trades": 1,
+     "costs": 25.940110744520428,
+     "dividend_tax": 88.82566028226,
+     "max_drawdown": 0.5163630564373267
+    },
+    {
+     "name": "Buy & hold BBB",
+     "start": "2013-02-27",
+     "end": "2014-12-17",
+     "final_value": 7743.579742094004,
+     "return": -0.22564202579059955,
+     "trades": 1,
+     "costs": 25.940110649053008,
+     "dividend_tax": 0.0,
+     "max_drawdown": 0.42869209418328824
+    },
+    {
+     "name": "Buy & hold CCC",
+     "start": "2013-02-27",
+     "end": "2014-12-17",
+     "final_value": 10464.742865732575,
+     "return": 0.04647428657325747,
+     "trades": 1,
+     "costs": 25.940110291867033,
+     "dividend_tax": 0.0,
+     "max_drawdown": 0.5313135018173825
+    },
+    {
+     "name": "Buy & hold VT",
+     "start": "2013-02-27",
+     "end": "2014-12-17",
+     "final_value": 13004.194819063578,
+     "return": 0.3004194819063577,
+     "trades": 1,
+     "costs": 25.940110287632596,
+     "dividend_tax": 98.61265001112,
+     "max_drawdown": 0.10957985770163614
+    }
+   ],
+   "walk_forward": {
+    "train": {
+     "start": "2013-02-27",
+     "end": "2014-06-02",
+     "days": 329
+    },
+    "test": {
+     "start": "2014-06-03",
+     "end": "2014-12-17",
+     "days": 142
+    },
+    "chosen_rule": "MA100/MA200",
+    "chosen_in_sample": 0.016967416915605105,
+    "chosen_out_of_sample": 0.03935370395941962,
+    "default_rule": "MA50/MA200",
+    "default_in_sample": -0.11419956036628442,
+    "default_out_of_sample": 0.0728255625247094,
+    "candidates": [
+     {
+      "rule": "MA100/MA200",
+      "in_sample": 0.016967416915605105
+     },
+     {
+      "rule": "MA100/MA250",
+      "in_sample": -0.053087299918044506
+     },
+     {
+      "rule": "MA20/MA250",
+      "in_sample": -0.05959986260306327
+     },
+     {
+      "rule": "MA50/MA250",
+      "in_sample": -0.06522840977531319
+     },
+     {
+      "rule": "MA100/MA150",
+      "in_sample": -0.0669812681070232
+     },
+     {
+      "rule": "MA20/MA200",
+      "in_sample": -0.07018969587433077
+     },
+     {
+      "rule": "MA50/MA200",
+      "in_sample": -0.11419956036628442
+     },
+     {
+      "rule": "MA50/MA150",
+      "in_sample": -0.13620674514819442
+     },
+     {
+      "rule": "MA20/MA100",
+      "in_sample": -0.18645687921336118
+     },
+     {
+      "rule": "MA20/MA150",
+      "in_sample": -0.18871685410251793
+     },
+     {
+      "rule": "MA50/MA100",
+      "in_sample": -0.20634623257851736
+     }
+    ],
+    "caveat": "The in-sample figure was selected *because* it was the best on that data, so it is optimistic by construction. Only the out-of-sample figure is a (single, small) test, and it is not proof."
+   },
+   "walk_forward_skipped": null,
+   "notices": [
+    "Educational only. This simulator does not give buy or sell advice.",
+    "Past performance does not predict future results.",
+    "The trend bot is a comparison, not a recommendation."
+   ],
+   "review": [
+    {
+     "title": "Skipping the loss limit",
+     "count": 5,
+     "detail": "A loss-limit alert fired and within 5 trading days the position was not reduced, not reviewed in the journal, and did not recover (AAA, CCC). Holding can be a deliberate choice; the question is whether your 'what would prove me wrong' note had already come true."
+    },
+    {
+     "title": "Short or missing journal reasoning",
+     "count": 4,
+     "detail": "Some entries had a very short reason or no clear 'what would prove me wrong' condition, which makes it hard to review the decision later."
+    }
+   ],
+   "process": {
+    "score": 71,
+    "components": [
+     {
+      "key": "journal",
+      "name": "Clear written reasoning",
+      "max": 20,
+      "lesson": "process",
+      "detail": "1 of 5 trades had a clear reason and a 'prove me wrong' condition.",
+      "score": 4.0
+     },
+     {
+      "key": "calm",
+      "name": "Not reacting to big moves",
+      "max": 20,
+      "lesson": "biases",
+      "detail": "0 of 5 trades came right after a move of 10% or more.",
+      "score": 20.0
+     },
+     {
+      "key": "exits",
+      "name": "Responding to loss limits",
+      "max": 20,
+      "lesson": "exit-plans",
+      "detail": "7 of 12 loss-limit alerts got a response (sale, review note or recovery) within 5 days.",
+      "score": 11.7
+     },
+     {
+      "key": "sizing",
+      "name": "Position sizing",
+      "max": 20,
+      "lesson": "sizing",
+      "detail": "On 370 of 470 invested days no single stock was over 40% of your portfolio (a broad index fund such as VT is already diversified, so it is not counted).",
+      "score": 15.7
+     },
+     {
+      "key": "costs",
+      "name": "Keeping costs down",
+      "max": 20,
+      "lesson": "costs",
+      "detail": "Trading costs were 0.27% of starting cash (full marks at 0.5% or less, none at 2% or more).",
+      "score": 20.0
+     }
+    ],
+    "note": "Measures decision habits, not profit. A good process can lose money and a bad one can win."
+   }
+  }
+ }
+}
