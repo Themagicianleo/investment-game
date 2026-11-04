@@ -1,7 +1,13 @@
 # trade-sim
 
-A simulator, with a **web app** and a command-line interface, for practising **buy, hold and sell decisions** on US stocks and ETFs
+An educational trading game for practising **buy, hold and sell decisions** on US stocks and ETFs
 by replaying real daily history one trading day at a time.
+
+**Play it in your browser: https://themagicianleo.github.io/investment-game/**
+
+It runs entirely in your browser (hosted on GitHub Pages). Progress, your journal and any session
+in progress are stored only on your device. There is also a Python command-line version and a
+local server version (see [Python version](#python-version-cli-and-local-server)).
 
 > **Educational use only.** trade-sim does not give buy or sell advice. Past performance does not
 > predict future results. The trend bot is a comparison that follows past trends, not a
@@ -32,7 +38,51 @@ Default tickers: `VT, AAPL, NVDA, INTC, AMD`.
   fill (or rejected order) is appended to `journal.csv` with the date, fill price, fees and your
   notes.
 
-## Setup
+## The web app (GitHub Pages)
+
+The site in `web/` is a static TypeScript + Vite app. GitHub Actions builds it and deploys it to
+GitHub Pages; there is no server.
+
+| Piece | What it does |
+|---|---|
+| `web/src/engine/` | The simulation engine, ported from the Python package: replay, fills and costs, dividends and splits, alerts, trend bot, walk-forward, coach, missions, process score and report |
+| `web/src/api.ts` | The same JSON API as the Python server (`trade_sim/web.py`), but running in the browser |
+| `web/src/ui/app.js`, `web/index.html` | The UI (shared with the Python server version) |
+| `web/src/content/*.json` | Lessons, glossary, scenarios, missions and default settings, exported from the Python package by `scripts/export_web_content.py` |
+| `web/public/data/market/*.csv` | Daily prices, dividends and splits, refreshed weekly by a workflow |
+| `.github/workflows/deploy.yml` | On every push to `main`: runs both test suites, builds, deploys to Pages |
+| `.github/workflows/update-market-data.yml` | Weekly (and on demand): downloads data from Yahoo Finance with `scripts/fetch_market_data.py`, commits it if it changed, and redeploys |
+
+**One-time setup on GitHub:**
+1. Repository **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. **Actions → Update market data → Run workflow**, to publish the first data set. Until it has
+   run, the practice market works but the real-data modes say the data hasn't been published yet.
+
+**Keeping the two engines identical:** `scripts/make_golden.py` runs scripted sessions through the
+Python engine and saves the results to `web/tests/golden/`. `npm test` then checks that the
+TypeScript engine reproduces every fill, fee, dividend, split, alert, tip, mission and report
+figure. `pytest` fails if the Python engine changes without the fixtures being regenerated.
+After changing lessons or other content in Python, run `python scripts/export_web_content.py`.
+
+**Working on the site locally** (Node.js 18+):
+
+```bash
+cd web
+npm install
+npm run dev        # http://localhost:5173 with hot reload
+npm test           # engine, API and golden tests
+npm start          # production build, opened at http://localhost:4173
+```
+
+Real-data modes need `web/public/data/market/*.csv`. Run `python scripts/fetch_market_data.py`
+once to create them locally. The practice market needs no data.
+
+**In the browser, data stays in the browser.** XP, lesson results, missions, session history and
+`journal.csv` live in `localStorage`. The journal can be downloaded from the Journal card, and
+Progress → *Reset progress and journal* clears everything. An unfinished session is saved as its
+start request plus your actions, and rebuilt by replaying them when you reload the page.
+
+## Python version (CLI and local server)
 
 Requires Python 3.10+.
 
@@ -50,10 +100,10 @@ trade-sim play                       # or play in the terminal (same as plain `t
 
 You can also run it without installing: `python -m trade_sim web`.
 
-### Web app (the learning game)
+### The learning game (web app and local server)
 
-`trade-sim web --open` starts a small local server and opens the app at http://127.0.0.1:8000.
-It has four tabs:
+The hosted site and `trade-sim web --open` (a local server at http://127.0.0.1:8000) show the
+same app. It has four tabs:
 
 - **Play:** choose a game mode, then trade day by day (details below).
 - **Learn:** 11 short lessons, each about 4–5 minutes and ending in a three-question quiz.
@@ -96,8 +146,8 @@ It has four tabs:
   benchmark, the process-score breakdown, missions completed, XP earned, the scenario debrief and
   up to three suggested lessons based on what happened.
 
-It uses the same engine, `config.yaml`, data cache and `journal.csv` as the CLI. Progress is
-saved in `progress.json` (git-ignored). The browser only receives data up to the session's
+The local server version uses the Python engine, `config.yaml`, the data cache and `journal.csv`
+like the CLI, and saves progress in `progress.json` (git-ignored). The browser only receives data up to the session's
 current day, which `tests/test_web.py` checks. The page is plain HTML/CSS/JS with no build step
 and no CDN.
 
@@ -233,7 +283,8 @@ Important
 ## Running the tests
 
 ```bash
-pytest
+pytest                     # Python engine, CLI, local server, content and golden fixtures
+cd web && npm test         # TypeScript engine (golden comparison), browser API, practice market
 ```
 
 The tests use synthetic data and need no network. They cover fees and FX, the spread and
