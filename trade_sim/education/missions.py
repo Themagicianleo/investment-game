@@ -8,7 +8,7 @@ MISSIONS: list[dict] = [
     {"id": "plan-first", "title": "Plan your exit", "xp": 20, "lesson": "exit-plans",
      "desc": "Make a trade with a specific 'what would prove me wrong' condition (15+ characters)."},
     {"id": "diversify", "title": "Spread your risk", "xp": 30, "lesson": "sizing",
-     "desc": "End a day holding 3 or more tickers with none above 40% of your portfolio."},
+     "desc": "End a day holding 3 or more tickers with no single stock above 40% of your portfolio."},
     {"id": "dividend", "title": "Paid to wait", "xp": 20, "lesson": "dividends",
      "desc": "Receive a dividend, and notice the withholding tax."},
     {"id": "review", "title": "Think before acting", "xp": 15, "lesson": "exit-plans",
@@ -34,7 +34,8 @@ def _achieved(s, at_end: bool) -> set[str]:
     if any(len(e.get("prove_wrong", "").strip()) >= 15 for e in filled):
         done.add("plan-first")
     w = s.weights()
-    if len(w) >= 3 and max(w.values()) <= 0.40:
+    single_stocks = [v for t, v in w.items() if t not in s.broad_funds]
+    if len(w) >= 3 and all(v <= 0.40 for v in single_stocks):
         done.add("diversify")
     if s.dividends_received > 0:
         done.add("dividend")

@@ -52,7 +52,8 @@ def process_score(s) -> dict:
     if invested:
         ok_days = sum(1 for w in invested if w <= 0.40)
         add("sizing", "Position sizing", ok_days / len(invested),
-            f"On {ok_days} of {len(invested)} invested days no single position was over 40% of your portfolio.", "sizing")
+            f"On {ok_days} of {len(invested)} invested days no single stock was over 40% of your portfolio "
+            f"(a broad index fund such as {s.cfg['benchmark_ticker']} is already diversified, so it is not counted).", "sizing")
     else:
         add("sizing", "Position sizing", None, "You have not held a position at a close yet.", "sizing")
 

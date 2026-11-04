@@ -95,7 +95,12 @@ def trade_tips(s, side: str, t: str, p: dict, pos) -> list[dict]:
                         f"The ${c.fee_per_order:.2f} fee is {c.fee_per_order / p['gross']:.1%} of this order. Including "
                         f"selling later, the price must rise about {p['break_even_move']:.1%} just to break even.",
                         "costs", "warn"))
-    if side == BUY and p["weight_after"] > 0.40:
+    if side == BUY and p["weight_after"] > 0.40 and t in getattr(s, "broad_funds", set()):
+        tips.append(tip("broad-fund", "A large weight in a broad fund",
+                        f"{t} would be about {p['weight_after']:.0%} of your portfolio. Because it is a broad index fund "
+                        "holding many companies, this is far less concentrated than the same weight in one stock, "
+                        "though it still moves with the whole market.", "sizing"))
+    elif side == BUY and p["weight_after"] > 0.40:
         tips.append(tip("concentration", "Concentration check",
                         f"After this trade {t} would be about {p['weight_after']:.0%} of your portfolio. A 20% fall in "
                         f"{t} alone would cost about {p['loss_if_down_20_pct_portfolio']:.1%} of everything you have. "

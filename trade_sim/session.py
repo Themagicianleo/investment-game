@@ -69,6 +69,9 @@ class Session:
         self.longest_hold_days = 0
         self.dividends_received = 0
         self.splits_seen = 0
+        # broad index funds (the benchmark, e.g. VT/SPY) are already diversified, so they are
+        # left out of the single-position concentration measure
+        self.broad_funds = {cfg.get("benchmark_ticker", "")}
 
     # --- helpers ----------------------------------------------------------
     @property
@@ -183,7 +186,8 @@ class Session:
         self.peak_equity = max(self.peak_equity, eq)
         self.max_drawdown = max(self.max_drawdown, self.drawdown())
         w = self.weights()
-        self.max_weights.append(max(w.values()) if w else 0.0)
+        single = [v for t, v in w.items() if t not in self.broad_funds]
+        self.max_weights.append(max(single) if single else (0.0 if not w else 1e-9))
         for t in self.tickers:
             held = self.account.shares(t) > 0
             if held and t not in self.open_since:

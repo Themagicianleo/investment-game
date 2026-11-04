@@ -202,3 +202,14 @@ def test_progress_tolerates_corrupt_file(tmp_path):
     path = tmp_path / "p.json"
     path.write_text("{not json")
     assert ProgressStore(path).snapshot()["xp"] == 0
+
+
+def test_broad_index_fund_not_counted_as_concentration(tmp_path):
+    s = _session(tmp_path)  # benchmark ticker VT is the broad fund here
+    s.place("buy", "VT", 9000, "core holding in a broad fund", "my plan changes")
+    s.place("buy", "AAA", 500, "small single-stock position", "falls 15% below cost")
+    s.hold(3)
+    sizing = next(c for c in process_score(s)["components"] if c["key"] == "sizing")
+    assert sizing["score"] == 20
+    tips = {t["id"] for t in coach.trade_preview(s, "buy", "VT", 500)["tips"]}
+    assert "concentration" not in tips
