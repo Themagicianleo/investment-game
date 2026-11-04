@@ -8,13 +8,15 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">trade-sim</div>
-    <div class="date-pill" id="date-pill" hidden>
-      <span id="date-label"></span>
-      <span class="muted" id="day-label"></span>
-    </div>
+    <a class="brand" href="#/play">trade-sim</a>
+    <nav class="nav" aria-label="Main">
+      <a href="#/play" data-route="play">Play</a>
+      <a href="#/learn" data-route="learn">Learn</a>
+      <a href="#/glossary" data-route="glossary">Glossary</a>
+      <a href="#/progress" data-route="progress">Progress</a>
+    </nav>
     <div class="spacer"></div>
-    <button class="btn ghost" id="end-btn" hidden>End session</button>
+    <a class="level-pill" id="level-pill" href="#/progress" title="Your level and XP"></a>
   </header>
 
   <div class="disclaimer" role="note">
@@ -22,161 +24,207 @@
     Past performance does not predict future results.
   </div>
 
-  <div id="error" class="toast error" role="alert" hidden></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="term-tip" class="term-tip" role="tooltip" hidden></div>
 
-  <!-- start -------------------------------------------------------------- -->
-  <main id="start-view" class="start">
-    <section class="card start-card">
-      <h1>Practise buy, hold and sell decisions</h1>
-      <p>
-        You start on a <strong>random date in the past</strong> with <strong id="start-cash">$10,000</strong>
-        and replay the market one trading day at a time. You can only see prices up to the current day.
-      </p>
-      <ul class="rules">
-        <li>Market orders fill at the <strong>next trading day's open</strong>, a little worse than the open
-          (half bid-ask spread + slippage), plus a flat fee per order.</li>
-        <li>Dividends arrive on the ex-dividend date, minus US withholding tax.</li>
-        <li>Every trade asks for your reason and what would prove you wrong. Both go into <code>journal.csv</code>.</li>
-        <li>You get a warning when a position falls past the loss limit. Nothing is ever sold for you.</li>
-      </ul>
-      <form id="start-form" class="row">
-        <label class="field grow">
-          <span>Seed (optional, for a repeatable start date)</span>
-          <input type="text" inputmode="numeric" id="seed" placeholder="leave blank for random">
-        </label>
-        <button class="btn primary" type="submit" id="start-btn">Start session</button>
-      </form>
-      <p class="muted small" id="start-status"></p>
+  <!-- PLAY: choose a mode ------------------------------------------------- -->
+  <main id="view-start" class="view narrow" hidden>
+    <section class="hero">
+      <h1>Learn to trade by practising, without risking real money</h1>
+      <p class="muted">Replay the market one day at a time. Fills, fees, dividends and tax work like a real
+        broker's. A coach explains what's happening, and your <span class="term" tabindex="0" data-term="resulting">process</span>
+        is scored separately from your luck.</p>
+      <div class="callout" id="newbie-callout">
+        <strong>New to this?</strong> Start with the first lesson, <a href="#/learn/orders">Orders, prices and the spread</a>
+        (4 minutes), or jump straight into the practice market below.
+      </div>
     </section>
+
+    <section class="modes">
+      <article class="card mode">
+        <div class="mode-tag">Works offline</div>
+        <h2>Practice market</h2>
+        <p class="muted">Five fictional companies with randomly generated prices, including bull runs, crashes, a bubble,
+          dividends and splits. It's different every time and the best place to start.</p>
+        <button class="btn primary" data-start="practice">Start practice</button>
+      </article>
+      <article class="card mode">
+        <div class="mode-tag">Real data</div>
+        <h2>Random history</h2>
+        <p class="muted">Real daily prices for <span id="start-tickers">VT, AAPL, NVDA, INTC, AMD</span> from a random
+          past date you don't know in advance.</p>
+        <div class="row">
+          <label class="field grow"><span>Seed (optional, repeatable start)</span>
+            <input type="text" inputmode="numeric" id="seed" placeholder="random"></label>
+          <button class="btn primary" data-start="random">Start</button>
+        </div>
+      </article>
+    </section>
+
+    <section>
+      <h2 class="section-title">Historical scenarios <span class="muted small">real data · briefing before, debrief after</span></h2>
+      <div class="scenarios" id="scenario-list"></div>
+    </section>
+    <p class="muted small" id="start-status"></p>
   </main>
 
-  <!-- game --------------------------------------------------------------- -->
-  <main id="game-view" class="game" hidden>
-    <div class="col main-col">
-      <nav class="tickers" id="ticker-tabs" aria-label="Tickers"></nav>
-
-      <section class="card chart-card">
-        <div class="card-head">
-          <div>
-            <h2 id="chart-title">—</h2>
-            <div class="muted small" id="chart-sub"></div>
-          </div>
-          <div class="seg" id="range-seg">
-            <button data-days="63">3M</button>
-            <button data-days="126">6M</button>
-            <button data-days="252" class="on">1Y</button>
-            <button data-days="504">2Y</button>
-            <button data-days="0">All</button>
-          </div>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="price-chart" aria-label="Price chart up to the current day"></canvas>
-          <div class="tooltip" id="chart-tip" hidden></div>
-        </div>
-        <div class="muted small">Closes shown up to today only, adjusted for splits that have already
-          happened. The dashed line is your average cost.</div>
-      </section>
-
-      <section class="card">
-        <h2>Place a market order</h2>
-        <form id="order-form" class="order">
-          <div class="seg side" id="side-seg">
-            <button type="button" data-side="buy" class="on">Buy</button>
-            <button type="button" data-side="sell">Sell</button>
-          </div>
-          <div class="row">
-            <label class="field">
-              <span>Ticker</span>
-              <select id="order-ticker"></select>
-            </label>
-            <label class="field grow">
-              <span>Amount (USD)</span>
-              <input type="text" inputmode="decimal" id="order-amount" placeholder="e.g. 1000" autocomplete="off">
-            </label>
-            <label class="check" id="sell-all-wrap" hidden>
-              <input type="checkbox" id="sell-all"> Sell all
-            </label>
-          </div>
-          <div class="muted small" id="order-hint"></div>
-          <label class="field">
-            <span>Why are you making this trade?</span>
-            <textarea id="order-reason" rows="2" required></textarea>
-          </label>
-          <label class="field">
-            <span>What would prove you wrong?</span>
-            <textarea id="order-wrong" rows="2" required></textarea>
-          </label>
-          <div class="row end">
-            <button class="btn primary" type="submit" id="order-btn">Queue buy order</button>
-          </div>
-        </form>
-        <div id="pending-wrap" hidden>
-          <h3>Pending orders <span class="muted small">fill at the next open</span></h3>
-          <ul class="list" id="pending-list"></ul>
-          <button class="btn ghost small" id="cancel-btn">Cancel all pending</button>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="card-head">
-          <h2>Journal</h2>
-          <span class="muted small">saved to journal.csv</span>
-        </div>
-        <div id="journal" class="journal"></div>
-      </section>
+  <!-- PLAY: game ---------------------------------------------------------- -->
+  <main id="view-game" class="view" hidden>
+    <div class="gamebar">
+      <div class="date-pill"><span id="date-label"></span> <span class="muted" id="day-label"></span></div>
+      <span class="chip" id="mode-chip"></span>
+      <div class="spacer"></div>
+      <button class="btn ghost" id="end-btn">End session</button>
     </div>
+    <div class="banner" id="mode-banner" hidden></div>
 
-    <div class="col side-col">
-      <section class="card account">
-        <div class="muted small">Total value</div>
-        <div class="big" id="equity">—</div>
-        <div id="return" class="ret">—</div>
-        <canvas id="equity-chart" class="spark" aria-label="Your account value over the session"></canvas>
-        <dl class="kv">
-          <dt>Cash</dt><dd id="cash">—</dd>
-          <dt>Available for new buys</dt><dd id="avail">—</dd>
-          <dt>Holdings</dt><dd id="holdings">—</dd>
-        </dl>
-        <div class="hold-row">
-          <button class="btn primary" data-hold="1">Next day</button>
-          <button class="btn" data-hold="5">+5 days</button>
-          <button class="btn" data-hold="21">+1 month</button>
-        </div>
-        <div class="muted small">Multi-day holds stop early if a loss-limit alert fires.</div>
-      </section>
+    <div class="game">
+      <div class="col main-col">
+        <nav class="tickers" id="ticker-tabs" aria-label="Tickers"></nav>
 
-      <section class="card">
-        <h2>Positions</h2>
-        <div id="positions"></div>
-      </section>
+        <section class="card chart-card">
+          <div class="card-head">
+            <div>
+              <h2 id="chart-title">—</h2>
+              <div class="muted small" id="chart-sub"></div>
+            </div>
+            <div class="seg" id="range-seg">
+              <button data-days="63">3M</button>
+              <button data-days="126">6M</button>
+              <button data-days="252" class="on">1Y</button>
+              <button data-days="504">2Y</button>
+              <button data-days="0">All</button>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="price-chart" aria-label="Price chart up to the current day"></canvas>
+            <div class="tooltip" id="chart-tip" hidden></div>
+          </div>
+          <div class="legend">
+            <span><i class="sw line"></i>Close</span>
+            <label><input type="checkbox" id="show-ma50"> <i class="sw ma50"></i><span class="term" tabindex="0" data-term="moving average">MA50</span></label>
+            <label><input type="checkbox" id="show-ma200"> <i class="sw ma200"></i>MA200</label>
+            <span><i class="sw cost"></i>your avg cost</span>
+            <span><b class="up">▲</b> buys <b class="down">▼</b> sells</span>
+          </div>
+          <div class="muted small">Only days up to today are shown, adjusted for splits that have already happened.</div>
+        </section>
 
-      <section class="card">
-        <h2>Costs so far</h2>
-        <dl class="kv" id="costs"></dl>
-        <div class="muted small" id="rules-text"></div>
-      </section>
+        <section class="card">
+          <h2>Order ticket</h2>
+          <form id="order-form" class="order" autocomplete="off">
+            <div class="seg side" id="side-seg">
+              <button type="button" data-side="buy" class="on">Buy</button>
+              <button type="button" data-side="sell">Sell</button>
+            </div>
+            <div class="row">
+              <label class="field"><span>Ticker</span><select id="order-ticker"></select></label>
+              <label class="field grow"><span>Amount (USD)</span>
+                <input type="text" inputmode="decimal" id="order-amount" placeholder="e.g. 1000"></label>
+              <label class="check" id="sell-all-wrap" hidden><input type="checkbox" id="sell-all"> Sell all</label>
+            </div>
+            <div class="preview" id="preview" hidden></div>
+            <label class="field"><span>Why are you making this trade?</span>
+              <textarea id="order-reason" rows="2" placeholder="e.g. I want broad exposure while I learn; I'm sizing small because…"></textarea></label>
+            <label class="field"><span>What would prove you wrong? <span class="term" tabindex="0" data-term="loss limit">why ask?</span></span>
+              <textarea id="order-wrong" rows="2" placeholder="e.g. It closes 15% below my cost, or the reason above stops being true"></textarea></label>
+            <div class="row end">
+              <span class="muted small grow" id="order-hint"></span>
+              <button class="btn primary" type="submit" id="order-btn">Queue buy order</button>
+            </div>
+          </form>
+          <div id="pending-wrap" hidden>
+            <h3>Pending orders <span class="muted small">fill at the next open</span></h3>
+            <ul class="list" id="pending-list"></ul>
+            <button class="btn ghost small" id="cancel-btn">Cancel all pending</button>
+          </div>
+        </section>
 
-      <section class="card">
-        <h2>Activity</h2>
-        <ul class="log" id="log"></ul>
-      </section>
+        <section class="card">
+          <div class="card-head"><h2>Journal</h2><span class="muted small">saved to journal.csv</span></div>
+          <div id="journal" class="journal"></div>
+        </section>
+      </div>
+
+      <div class="col side-col">
+        <section class="card account">
+          <div class="muted small">Total value</div>
+          <div class="big" id="equity">—</div>
+          <div id="return" class="ret">—</div>
+          <canvas id="equity-chart" class="spark" aria-label="Your account value over the session"></canvas>
+          <dl class="kv">
+            <dt>Cash</dt><dd id="cash">—</dd>
+            <dt>Available for new buys</dt><dd id="avail">—</dd>
+            <dt>Holdings</dt><dd id="holdings">—</dd>
+            <dt><span class="term" tabindex="0" data-term="drawdown">Drawdown</span> now / worst</dt><dd id="dd">—</dd>
+          </dl>
+          <div class="hold-row">
+            <button class="btn primary" data-hold="1">Next day</button>
+            <button class="btn" data-hold="5">+5 days</button>
+            <button class="btn" data-hold="21">+1 month</button>
+          </div>
+          <div class="muted small">Tip: press <kbd>n</kbd> for the next day. Longer holds stop early on a loss-limit alert.</div>
+        </section>
+
+        <section class="card coach-card">
+          <h2>Coach</h2>
+          <div id="coach"></div>
+        </section>
+
+        <section class="card">
+          <h2>Positions</h2>
+          <div id="positions"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>Process score</h2><span class="score-badge" id="process-score">–</span></div>
+          <div id="process"></div>
+        </section>
+
+        <section class="card">
+          <h2>Missions</h2>
+          <ul class="missions" id="missions"></ul>
+        </section>
+
+        <section class="card">
+          <h2>Costs so far</h2>
+          <dl class="kv" id="costs"></dl>
+          <div class="muted small" id="rules-text"></div>
+        </section>
+
+        <section class="card">
+          <h2>Activity</h2>
+          <ul class="log" id="log"></ul>
+        </section>
+      </div>
     </div>
   </main>
 
-  <!-- report ------------------------------------------------------------- -->
-  <main id="report-view" class="report" hidden>
+  <!-- PLAY: report -------------------------------------------------------- -->
+  <main id="view-report" class="view narrow" hidden>
     <section class="card">
       <h1>End of session report</h1>
       <p class="muted" id="report-period"></p>
       <div class="stats" id="report-user"></div>
+      <div id="report-xp" class="xp-earned"></div>
+    </section>
+
+    <section class="card" id="report-scenario-card" hidden>
+      <h2>What actually happened: <span id="report-scenario-title"></span></h2>
+      <p id="report-scenario"></p>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Process score</h2><span class="score-badge" id="report-process-score">–</span></div>
+      <div id="report-process"></div>
     </section>
 
     <section class="card">
       <h2>Compared with benchmarks <span class="tag">comparisons, not recommendations</span></h2>
-      <p class="muted small">Same dates, same data, same fees, spread, slippage, FX and dividend tax.</p>
+      <p class="muted small">Same dates, data, fees, spread, slippage, FX and dividend tax. <span class="term" tabindex="0" data-term="maximum drawdown">Max drawdown</span> shows the worst fall along the way.</p>
       <table class="tbl" id="report-bench"></table>
       <p class="small" id="report-bot-rule"></p>
-      <h3>Each ticker bought at the first open and held through the period</h3>
+      <h3>Each ticker bought at the first open and held</h3>
       <table class="tbl" id="report-tickers"></table>
     </section>
 
@@ -190,14 +238,62 @@
       <div id="report-review"></div>
     </section>
 
+    <section class="card">
+      <h2>Missions completed</h2>
+      <div id="report-missions"></div>
+    </section>
+
+    <section class="card">
+      <h2>Suggested next lessons</h2>
+      <div class="lesson-grid" id="report-lessons"></div>
+    </section>
+
     <section class="card notice">
       <h2>Important</h2>
       <ul id="report-notices"></ul>
     </section>
 
     <div class="row end">
-      <button class="btn primary" id="new-btn">Start a new session</button>
+      <button class="btn primary" id="new-btn">Play again</button>
     </div>
+  </main>
+
+  <!-- LEARN --------------------------------------------------------------- -->
+  <main id="view-learn" class="view narrow" hidden>
+    <h1>Learn</h1>
+    <p class="muted" id="learn-summary"></p>
+    <div id="lesson-groups"></div>
+  </main>
+
+  <main id="view-lesson" class="view reading" hidden>
+    <a href="#/learn" class="back">← All lessons</a>
+    <article id="lesson"></article>
+  </main>
+
+  <!-- GLOSSARY ------------------------------------------------------------ -->
+  <main id="view-glossary" class="view narrow" hidden>
+    <h1>Glossary</h1>
+    <input type="text" id="glossary-search" placeholder="Search terms…" aria-label="Search glossary">
+    <dl class="glossary" id="glossary"></dl>
+  </main>
+
+  <!-- PROGRESS ------------------------------------------------------------ -->
+  <main id="view-progress" class="view narrow" hidden>
+    <h1>Your progress</h1>
+    <section class="card" id="progress-level"></section>
+    <section class="card">
+      <h2>Missions</h2>
+      <div class="badges" id="progress-missions"></div>
+    </section>
+    <section class="card">
+      <h2>Lessons</h2>
+      <ul class="list" id="progress-lessons"></ul>
+    </section>
+    <section class="card">
+      <h2>Session history</h2>
+      <p class="muted small">Watch the process score over time. It is the part you control.</p>
+      <div id="progress-sessions"></div>
+    </section>
   </main>
 
   <script src="/static/app.js"></script>
