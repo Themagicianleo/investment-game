@@ -238,3 +238,17 @@ def test_end_report_has_process_xp_and_recommendations(setup):
     assert "max_drawdown" in rep["user"] and "max_drawdown" in rep["benchmark"]
     prog = client.get("/api/progress").get_json()
     assert prog["sessions"][-1]["process_score"] == rep["process"]["score"]
+
+
+def test_network_failure_is_remembered_briefly():
+    cfg = validate(copy.deepcopy(DEFAULTS))
+    calls = []
+
+    def offline(tickers):
+        calls.append(tickers)
+        raise NetworkError("offline")
+
+    client = create_app(cfg, market_loader=offline, progress_path=None).test_client()
+    assert client.post("/api/sessions", json={"mode": "random"}).status_code == 503
+    assert client.post("/api/sessions", json={"mode": "random"}).status_code == 503
+    assert len(calls) == 1  # second attempt fails fast without re-downloading

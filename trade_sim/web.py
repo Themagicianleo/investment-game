@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import copy
 import threading
+import time
 from pathlib import Path
 from typing import Callable
 
@@ -71,6 +72,11 @@ class MarketProvider:
         self._loader = loader or self._default_loader
         self._cache: dict[tuple, MarketData] = {}
         self._lock = threading.Lock()
+        self._failure: tuple[float, Exception] | None = None
+        self.retry_after = 120.0  # seconds to remember a network failure, so the UI does not hang on every click
+
+    def mark_failed(self, exc: Exception) -> None:
+        self._failure = (time.monotonic(), exc)
 
     def _default_loader(self, tickers: list[str]) -> MarketData:
         return MarketData(load_market_frames(tickers, self.cfg["data"]["cache_dir"]))
@@ -84,8 +90,16 @@ class MarketProvider:
             return self._fixed
         key = tuple(sorted(tickers))
         with self._lock:
-            if key not in self._cache:
+            if key in self._cache:
+                return self._cache[key]
+            if self._failure and time.monotonic() - self._failure[0] < self.retry_after:
+                raise self._failure[1]
+            try:
                 self._cache[key] = self._loader(tickers)
+            except NetworkError as exc:
+                self.mark_failed(exc)
+                raise
+            self._failure = None
             return self._cache[key]
 
 
@@ -254,10 +268,13 @@ def recommended_lessons(report: dict, game: _Game) -> list[str]:
 
 def create_app(cfg: dict, market: MarketData | None = None,
                market_loader: Callable[[list[str]], MarketData] | None = None,
-               include_bot: bool = True, progress_path: str | None = "__config__") -> Flask:
+               include_bot: bool = True, progress_path: str | None = "__config__",
+               data_error: Exception | None = None) -> Flask:
     app = Flask(__name__, static_folder=None)
     games: dict[str, _Game] = {}
     provider = MarketProvider(cfg, market, market_loader)
+    if isinstance(data_error, NetworkError):
+        provider.mark_failed(data_error)
     if progress_path == "__config__":
         progress_path = cfg["data"].get("progress_path", "progress.json")
     progress = ProgressStore(progress_path)
@@ -388,6 +405,7 @@ def create_app(cfg: dict, market: MarketData | None = None,
 
         session = Session(m, scfg, start, end_idx=end_idx)
         game = _Game(session, mode, scenario)
+        game.xp_start = progress.snapshot()["xp"]
         games[session.session_id] = game
         d = fmt_date(session.date)
         if mode == "practice":
@@ -527,7 +545,7 @@ def create_app(cfg: dict, market: MarketData | None = None,
                                              for m, d in getattr(s, "missions_done", {}).items()]
                 rep["new_missions"] = [m["id"] for m in new_missions]
                 rep["recommended_lessons"] = recommended_lessons(rep, game)
-                before = progress.snapshot()["xp"]
+                before = getattr(game, "xp_start", progress.snapshot()["xp"])
                 progress.record_session({
                     "mode": game.mode, "scenario": game.scenario["title"] if game.scenario else None,
                     "start": rep["start"], "end": rep["end"], "days": rep["trading_days"],

@@ -310,14 +310,21 @@ def cmd_web(args, cfg) -> int:
         raise DataError("The web app needs Flask. Run: pip install -r requirements.txt")
     if args.no_bot:
         cfg["trend_bot"]["enabled"] = False
-    print("Loading market data (cached CSVs, or a download on the first run)...")
-    market = _load_market(cfg, args.refresh)  # fail fast with a clear message
-    app = create_app(cfg, market=market, include_bot=not args.no_bot)
-    url = f"http://{args.host}:{args.port}"
+    print("Checking market data (cached CSVs, or a download on the first run)...")
+    data_error = None
+    try:
+        _load_market(cfg, args.refresh)
+        print("Real market data is ready.")
+    except DataError as exc:  # includes NetworkError
+        data_error = exc
+        print(f"WARNING: real market data is not available right now:\n{exc}\n"
+              "The practice market (fictional prices) still works; real-data modes will retry when started.")
+    app = create_app(cfg, include_bot=not args.no_bot, data_error=data_error)
+    url = f"http://{'127.0.0.1' if args.host in ('0.0.0.0', '::') else args.host}:{args.port}"
     print(DISCLAIMER)
     print(f"\ntrade-sim web app running at {url}  (Ctrl+C to stop)")
     if args.host not in ("127.0.0.1", "localhost"):
-        print("WARNING: listening beyond localhost; anyone on your network can reach this app.")
+        print("WARNING: listening beyond localhost; anyone who can reach this machine can use the app.")
     if args.open:
         import threading
         import webbrowser
