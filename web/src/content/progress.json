@@ -1,0 +1,31 @@
+{
+  "levels": [
+    [
+      0,
+      "Novice"
+    ],
+    [
+      150,
+      "Apprentice"
+    ],
+    [
+      400,
+      "Practitioner"
+    ],
+    [
+      800,
+      "Analyst"
+    ],
+    [
+      1400,
+      "Strategist"
+    ],
+    [
+      2200,
+      "Mentor"
+    ]
+  ],
+  "lesson_xp": 50,
+  "session_xp": 25,
+  "repeat_mission_share": 0.25
+}
