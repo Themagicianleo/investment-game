@@ -1,0 +1,15 @@
+{
+  "name": "Trade Sim",
+  "short_name": "Trade Sim",
+  "description": "Learn to trade by replaying real market history. Educational only.",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "start_url": "./",
+  "scope": "./"
+}
