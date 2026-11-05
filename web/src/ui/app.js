@@ -109,29 +109,138 @@ document.addEventListener("click", (e) => {
 });
 
 // --- routing ---------------------------------------------------------------
-const VIEWS = ["view-start", "view-game", "view-report", "view-learn", "view-lesson", "view-glossary", "view-progress"];
+const VIEWS = ["view-start", "view-game", "view-report", "view-learn", "view-lesson", "view-glossary", "view-progress", "view-settings"];
+const TAB_FOR = { play: "play", learn: "learn", progress: "progress", glossary: "more", settings: "more" };
+
+/** Large title and subtitle, as in the EFB. */
+function setTitle(title, subtitle = "") {
+  $("page-title").textContent = title;
+  $("page-subtitle").textContent = subtitle;
+  document.title = title === "Play" ? "Trade Sim" : `${title} · Trade Sim`;
+}
+
 function show(view) {
   for (const v of VIEWS) $(v).hidden = v !== view;
+  const inGame = view === "view-game";
+  $("date-capsule").hidden = !inGame;
+  $("end-btn").hidden = !inGame;
+  $("wrap").classList.toggle("wide", inGame);
   hideTerm();
+  closeMore();
   $("toast").hidden = true;
 }
 
+function routeName() {
+  return (location.hash.replace(/^#\/?/, "") || "play").split("/");
+}
+
+function selectTab(page) {
+  const tab = TAB_FOR[page] || "play";
+  for (const b of document.querySelectorAll(".tabbar button")) {
+    b.setAttribute("aria-selected", String((b.dataset.route || "more") === tab));
+  }
+  for (const a of document.querySelectorAll(".menu-row[data-route]")) {
+    if (a.dataset.route === page) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  }
+}
+
 function route() {
-  const parts = (location.hash.replace(/^#\/?/, "") || "play").split("/");
+  const parts = routeName();
   const page = parts[0];
-  for (const a of document.querySelectorAll(".nav a")) a.classList.toggle("on", a.dataset.route === page);
+  selectTab(page);
   if (page === "learn" && parts[1]) return renderLesson(parts[1]);
   if (page === "learn") return renderLearn();
   if (page === "glossary") return renderGlossary();
   if (page === "progress") return renderProgress();
+  if (page === "settings") return renderSettings();
   // play
   if (ui.state && !ui.state.ended) {
+    setTitle("Play", gameSubtitle(ui.state));
     show("view-game");
     if (!ui.history || ui.history.as_of !== ui.state.date) run(loadHistory);
     requestAnimationFrame(() => { drawPrice(); drawEquity(ui.state.equity_curve); });
   }
-  else if (ui.report) show("view-report");
-  else { renderStart(); show("view-start"); }
+  else if (ui.report) { setTitle("Session report", reportSubtitle(ui.report)); show("view-report"); }
+  else { renderStart(); setTitle("Play", "Practise buy, hold and sell decisions on real market history"); show("view-start"); }
+}
+
+function gameSubtitle(st) {
+  const mode = st.mode === "practice" ? "Practice market (fictional prices)"
+    : st.mode === "scenario" ? st.scenario.title : "Random history";
+  return `${mode} · started ${st.start_date}`;
+}
+
+function reportSubtitle(rep) {
+  return `${rep.start} to ${rep.end} · ${rep.trading_days} trading days` + (rep.mode === "practice" ? " · practice market" : "");
+}
+
+// --- More menu ---------------------------------------------------------------
+function closeMore() {
+  $("more-menu").hidden = true;
+  $("more-btn").setAttribute("aria-expanded", "false");
+  selectTab(routeName()[0]);
+}
+$("more-btn").addEventListener("click", () => {
+  const open = $("more-menu").hidden;
+  $("more-menu").hidden = !open;
+  $("more-btn").setAttribute("aria-expanded", String(open));
+  if (open) for (const b of document.querySelectorAll(".tabbar button")) b.setAttribute("aria-selected", String(b.id === "more-btn"));
+  else selectTab(routeName()[0]);
+});
+$("more-backdrop").addEventListener("click", closeMore);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("more-menu").hidden) closeMore(); });
+for (const b of document.querySelectorAll(".tabbar button[data-route]")) {
+  b.addEventListener("click", () => {
+    const target = "#/" + b.dataset.route;
+    if (location.hash === target || (!location.hash && b.dataset.route === "play")) { route(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+    else location.hash = target;
+  });
+}
+for (const a of document.querySelectorAll(".menu-row")) a.addEventListener("click", () => { $("more-menu").hidden = true; });
+
+// --- settings: appearance and reduce transparency (same options as the EFB) ---------
+const SETTINGS_KEY = "trade-sim-settings";
+function loadSettings() {
+  try { return { appearance: "system", reduceTransparency: false, ...JSON.parse(store.get(SETTINGS_KEY) || "{}") }; }
+  catch { return { appearance: "system", reduceTransparency: false }; }
+}
+const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+function applySettings() {
+  const st = loadSettings();
+  const theme = st.appearance === "system" ? (darkQuery.matches ? "dark" : "light") : st.appearance;
+  document.documentElement.dataset.theme = theme;
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", theme === "dark" ? "#000000" : "#f2f2f7");
+  document.body.classList.toggle("solid", !!st.reduceTransparency);
+  for (const b of document.querySelectorAll("#appearance-seg button")) {
+    b.setAttribute("aria-pressed", String(b.dataset.appearance === st.appearance));
+  }
+  $("reduce-transparency").checked = !!st.reduceTransparency;
+  if (ui.state) { drawPrice(); drawEquity(ui.state.equity_curve); }
+}
+function saveSettings(patch) {
+  store.set(SETTINGS_KEY, JSON.stringify({ ...loadSettings(), ...patch }));
+  applySettings();
+}
+darkQuery.addEventListener("change", applySettings);
+$("appearance-seg").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-appearance]");
+  if (b) saveSettings({ appearance: b.dataset.appearance });
+});
+$("reduce-transparency").addEventListener("change", (e) => saveSettings({ reduceTransparency: e.target.checked }));
+
+let manifestInfo = null;
+async function renderSettings() {
+  setTitle("Settings", "Display, your data and about");
+  show("view-settings");
+  applySettings();
+  if (!manifestInfo) {
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}data/market/manifest.json`, { cache: "no-cache" });
+      manifestInfo = res.ok ? await res.json() : { missing: true };
+    } catch { manifestInfo = { missing: true }; }
+  }
+  $("about-data").textContent = manifestInfo.missing ? "Not published yet (the practice market works without it)"
+    : `Updated ${manifestInfo.updated} · ${Object.keys(manifestInfo.tickers).length} tickers`;
 }
 window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
 
@@ -142,18 +251,18 @@ function renderLevel(progress) {
   if (!progress) return;
   ui.edu.progress = progress;
   const lv = progress.level;
-  $("level-pill").innerHTML = `Lv ${lv.level}<span class="lv-name"> · ${esc(lv.name)}</span> · ${progress.xp} XP`;
+  $("level-pill").innerHTML = `<span class="lv">Lv ${lv.level}</span><span class="clock-caption lv-name">${esc(lv.name)}</span><span class="xp-num">${progress.xp} XP</span>`;
 }
 
 // --- start -----------------------------------------------------------------
 function renderStart() {
   $("scenario-list").innerHTML = ui.edu.scenarios.map((s) => `
-    <article class="card scenario">
-      <div class="meta"><span class="chip">${esc(s.period)}</span><span class="chip">${esc(s.difficulty)}</span></div>
-      <h2>${esc(s.title)}</h2>
-      <p class="muted">${esc(s.briefing.split(". ").slice(0, 2).join(". "))}.</p>
-      <div class="small muted">Tickers: ${esc(s.tickers.join(", "))}</div>
-      <div><button class="btn" data-start="scenario" data-scenario="${esc(s.id)}">Play scenario</button></div>
+    <article class="section scenario">
+      <div class="meta"><span class="pill accent">${esc(s.period)}</span><span class="pill ${s.difficulty === "Hard" ? "danger" : "warn"}">${esc(s.difficulty)}</span></div>
+      <h3>${esc(s.title)}</h3>
+      <p class="muted small">${esc(s.briefing.split(". ").slice(0, 2).join(". "))}.</p>
+      <div class="small muted">${esc(s.tickers.join(" · "))}</div>
+      <button class="btn btn-small" data-start="scenario" data-scenario="${esc(s.id)}" type="button">Play scenario</button>
     </article>`).join("");
   const passed = ui.edu.progress.lessons_passed;
   $("newbie-callout").hidden = passed >= 3;
@@ -186,18 +295,19 @@ function render(state) {
   ui.state = state;
   if (!ui.ticker || !state.rules.tickers.includes(ui.ticker)) ui.ticker = state.rules.tickers[0];
 
-  $("date-label").textContent = state.date;
-  $("day-label").textContent = `· day ${state.day}`;
+  $("date-label").textContent = new Date(state.date + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  $("day-label").textContent = `Day ${state.day}`;
+  if (!$("view-game").hidden) setTitle("Play", gameSubtitle(state));
   $("mode-chip").textContent = state.mode === "practice" ? "Practice market (fictional)"
     : state.mode === "scenario" ? `Scenario: ${state.scenario.title}` : "Random history";
   const banner = $("mode-banner");
   if (state.mode === "practice") {
-    banner.className = "banner practice";
+    banner.className = "banner banner-warn";
     banner.innerHTML = "<strong>Practice market:</strong> these companies and prices are made up and randomly generated. " +
       "They behave like real markets (trends, crashes, dividends, splits) but say nothing about any real security.";
     banner.hidden = false;
   } else if (state.mode === "scenario") {
-    banner.className = "banner";
+    banner.className = "banner banner-info";
     banner.innerHTML = `<strong>${esc(state.scenario.title)} · briefing:</strong> ${esc(state.scenario.briefing)}`;
     banner.hidden = false;
   } else banner.hidden = true;
@@ -281,13 +391,13 @@ function renderPositions(state) {
       <div class="line small muted"><span>${+p.shares.toFixed(6)} sh · avg ${fmtUSD(p.avg_cost)} · ${p.held_days}d held</span>
         <span class="${cls(p.pl)}">${fmtPct(p.pl)}</span></div>
       <div class="line small"><span class="muted">${pct(p.weight, 0)} of portfolio</span>
-        <button class="btn ghost small" data-review="${esc(p.ticker)}">Review</button></div>
+        <button class="btn btn-small" data-review="${esc(p.ticker)}" type="button">Review</button></div>
       <div class="weight"><i class="${p.weight > 0.4 ? "heavy" : ""}" style="width:${Math.min(100, p.weight * 100).toFixed(1)}%"></i></div>
       ${p.alert ? `<div class="small down">${lim}% loss limit reached. Nothing is sold automatically.</div>` : ""}
       ${ui.reviewing === p.ticker ? `<form class="review" data-review-form="${esc(p.ticker)}">
         <textarea rows="3" placeholder="Does your original reason still hold? Has your 'prove me wrong' condition happened?"></textarea>
-        <div class="row end"><button type="button" class="btn ghost small" data-review-cancel>Cancel</button>
-        <button class="btn primary small">Save review</button></div></form>` : ""}
+        <div class="btn-row end"><button type="button" class="btn btn-small" data-review-cancel>Cancel</button>
+        <button class="btn btn-primary btn-small">Save review</button></div></form>` : ""}
     </div>`).join("") : '<div class="muted">No positions. You are all in cash, which is also a position.</div>';
 }
 
@@ -490,7 +600,7 @@ function drawEquity(curve) {
   if (!canvas.clientWidth) return;
   const { ctx, w, h } = setupCanvas(canvas);
   if (!curve || curve.length < 2) {
-    ctx.fillStyle = cssVar("--muted"); ctx.font = "11px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.75)"; ctx.font = "12px -apple-system, system-ui, sans-serif";
     ctx.fillText("Your account value will be charted here.", 0, h / 2 + 4);
     return;
   }
@@ -499,11 +609,14 @@ function drawEquity(curve) {
   const min = Math.min(...vals, start), max = Math.max(...vals, start);
   const x = (i) => (i / (vals.length - 1)) * (w - 2) + 1;
   const y = (v) => 3 + (1 - (v - min) / (max - min || 1)) * (h - 6);
-  ctx.setLineDash([3, 3]); ctx.strokeStyle = cssVar("--chart-grid"); ctx.lineWidth = 1;
+  ctx.setLineDash([3, 4]); ctx.strokeStyle = "rgba(255,255,255,.45)"; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, y(start)); ctx.lineTo(w, y(start)); ctx.stroke(); ctx.setLineDash([]);
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, "rgba(255,255,255,.35)"); grad.addColorStop(1, "rgba(255,255,255,0)");
   ctx.beginPath(); vals.forEach((v, i) => (i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v))));
-  ctx.strokeStyle = vals[vals.length - 1] >= start ? cssVar("--up") : cssVar("--down");
-  ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.lineTo(x(vals.length - 1), h); ctx.lineTo(x(0), h); ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath(); vals.forEach((v, i) => (i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v))));
+  ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.lineJoin = "round"; ctx.stroke();
 }
 
 async function loadHistory() {
@@ -523,12 +636,11 @@ async function loadHistory() {
 function renderReport(rep) {
   ui.report = rep;
   const u = rep.user;
-  $("report-period").textContent = `${rep.start} to ${rep.end} · ${rep.trading_days} trading days` +
-    (rep.mode === "practice" ? " · practice market (fictional prices)" : "");
-  const stat = (l, v, c = "") => `<div class="stat"><div class="l">${l}</div><div class="v ${c}">${v}</div></div>`;
+  setTitle("Session report", reportSubtitle(rep));
+  const stat = (l, v, c = "", tile = "") => `<div class="stat-tile ${tile}"><div class="stat-label">${l}</div><div class="stat-value ${c}">${v}</div></div>`;
   $("report-user").innerHTML =
     stat("Final value", fmtUSD(u.final_value)) +
-    stat("Your return", fmtPct(u.return), cls(u.return)) +
+    stat("Your return", fmtPct(u.return), "", "accent") +
     stat("Max drawdown", pct(-u.max_drawdown), u.max_drawdown > 0 ? "down" : "") +
     stat("Process score", rep.process.score == null ? "n/a" : `${rep.process.score}/100`) +
     stat("Orders filled", u.orders) +
@@ -538,7 +650,7 @@ function renderReport(rep) {
     stat("Dividend tax", fmtUSD(u.dividend_tax)) +
     stat("Total fees + taxes", fmtUSD(u.total_fees_and_taxes));
   const lv = rep.xp.level;
-  $("report-xp").innerHTML = `★ +${rep.xp.gained_now} XP this session · Level ${lv.level} ${esc(lv.name)} (${lv.xp} XP)`;
+  $("report-xp").innerHTML = `<strong>+${rep.xp.gained_now} XP this session · Level ${lv.level} ${esc(lv.name)} (${lv.xp} XP)</strong>`;
 
   $("report-scenario-card").hidden = !rep.scenario;
   if (rep.scenario) {
@@ -595,8 +707,7 @@ function lessonCard(id) {
 
 function renderLearn() {
   const prog = ui.edu.progress;
-  $("learn-summary").textContent = `${prog.lessons_passed} of ${prog.lessons_total} lessons passed. Each takes about 4–5 minutes and ends ` +
-    "with a three-question quiz (pass with 2/3 for +50 XP). The lessons explain concepts; none of them say what to buy or sell.";
+  setTitle("Learn", `${prog.lessons_passed} of ${prog.lessons_total} lessons passed · 4–5 minutes each · quiz at the end (+50 XP)`);
   $("lesson-groups").innerHTML = LEVEL_ORDER.map((lvl) => {
     const ls = ui.edu.lessons.filter((l) => l.level === lvl);
     return ls.length ? `<div class="group-title">${lvl}</div><div class="lesson-grid">${ls.map((l) => lessonCard(l.id)).join("")}</div>` : "";
@@ -617,10 +728,9 @@ function renderLesson(id) {
   };
   const order = ui.edu.lessons.map((x) => x.id);
   const next = order[order.indexOf(id) + 1];
+  setTitle(l.title, `${l.level} · ${l.minutes} min read · lesson ${order.indexOf(id) + 1} of ${order.length}`);
   $("lesson").innerHTML = `
-    <div class="muted small">${esc(l.level)} · ${l.minutes} min read</div>
-    <h1>${esc(l.title)}</h1>
-    <p class="muted">${esc(l.summary)}</p>
+    <p class="lede">${esc(l.summary)}</p>
     ${l.body.map(block).join("")}
     <form class="quiz" id="quiz-form">
       <h2>Check your understanding</h2>
@@ -628,10 +738,10 @@ function renderLesson(id) {
         ${q.options.map((o, oi) => `<label class="opt"><input type="radio" name="q${qi}" value="${oi}"> <span>${inline(o)}</span></label>`).join("")}
         <div class="explain" hidden></div></div>`).join("")}
       <div class="quiz-result" id="quiz-result"></div>
-      <div class="row">
-        <button class="btn primary" id="quiz-submit">Check answers</button>
-        ${next ? `<a class="btn" href="#/learn/${esc(next)}">Next lesson →</a>` : ""}
-        <a class="btn ghost" href="#/play">Practise in the game</a>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="quiz-submit">Check answers</button>
+        ${next ? `<a class="btn" href="#/learn/${esc(next)}">Next lesson ›</a>` : ""}
+        <a class="btn" href="#/play">Practise in the game</a>
       </div>
     </form>`;
   $("quiz-form").addEventListener("submit", (e) => {
@@ -665,6 +775,7 @@ function renderLesson(id) {
 function renderGlossary() {
   const q = $("glossary-search").value.trim().toLowerCase();
   const terms = Object.keys(ui.edu.glossary).sort().filter((t) => !q || t.includes(q) || ui.edu.glossary[t].toLowerCase().includes(q));
+  setTitle("Glossary", `${Object.keys(ui.edu.glossary).length} terms in plain English`);
   $("glossary").innerHTML = terms.map((t) => `<div id="term-${esc(t.replace(/\s+/g, "-"))}"><dt>${esc(t)}</dt><dd>${esc(ui.edu.glossary[t])}</dd></div>`).join("")
     || '<p class="muted">No matching terms.</p>';
   show("view-glossary");
@@ -672,18 +783,22 @@ function renderGlossary() {
 $("glossary-search").addEventListener("input", renderGlossary);
 
 async function renderProgress() {
+  setTitle("Progress", "Your level, missions, lessons and session history");
   show("view-progress");
   try { renderLevel(await api("/api/progress")); } catch { /* use cached */ }
   const p = ui.edu.progress, lv = p.level;
   const span = lv.next_level_at ? lv.next_level_at - lv.level_start : 1;
   const into = lv.next_level_at ? (p.xp - lv.level_start) / span : 1;
-  $("progress-level").innerHTML = `<h2>Level ${lv.level}: ${esc(lv.name)}</h2>
+  $("progress-level").innerHTML = `<div class="label">Level ${lv.level}</div>
+    <div class="level-name">${esc(lv.name)}</div>
     <div class="xpbar"><i style="width:${(into * 100).toFixed(0)}%"></i></div>
-    <div class="small muted">${p.xp} XP${lv.next_level_at ? ` · ${lv.next_level_at - p.xp} XP to the next level` : " · top level reached"}.
-      Earn XP by passing lessons (+50), completing missions and finishing sessions (+25).</div>
-    <div class="stats"><div class="stat"><div class="l">Lessons passed</div><div class="v">${p.lessons_passed}/${p.lessons_total}</div></div>
-      <div class="stat"><div class="l">Missions earned</div><div class="v">${Object.keys(p.missions).length}/${ui.edu.missions.length}</div></div>
-      <div class="stat"><div class="l">Sessions played</div><div class="v">${p.sessions.length}</div></div></div>`;
+    <div class="muted small">${p.xp} XP${lv.next_level_at ? ` · ${lv.next_level_at - p.xp} XP to the next level` : " · top level reached"}.
+      Earn XP by passing lessons (+50), completing missions and finishing sessions (+25).</div>`;
+  const tile = (l, v) => `<div class="stat-tile"><div class="stat-label">${l}</div><div class="stat-value">${v}</div></div>`;
+  $("progress-stats").innerHTML = tile("Lessons passed", `${p.lessons_passed}<small> / ${p.lessons_total}</small>`) +
+    tile("Missions earned", `${Object.keys(p.missions).length}<small> / ${ui.edu.missions.length}</small>`) +
+    tile("Sessions played", p.sessions.length) +
+    tile("Best process score", p.sessions.reduce((m, s) => (s.process_score != null && s.process_score > m ? s.process_score : m), 0) || "–");
   $("progress-missions").innerHTML = ui.edu.missions.map((m) => {
     const n = p.missions[m.id] || 0;
     return `<div class="badge-card ${n ? "earned" : "locked"}"><div class="t">${n ? "★" : "☆"} ${esc(m.title)}</div>
@@ -694,11 +809,11 @@ async function renderProgress() {
     return `<li><a href="#/learn/${esc(l.id)}">${esc(l.title)}</a> <span class="small ${r && r.passed ? "up" : "muted"}">
       ${r && r.passed ? "✓ passed" : r ? `best ${r.best}/${r.total}` : "not started"}</span></li>`;
   }).join("");
-  $("progress-sessions").innerHTML = p.sessions.length ? `<table class="tbl"><tr><th>Played</th><th>Mode</th><th>Period</th>
+  $("progress-sessions").innerHTML = p.sessions.length ? `<div class="table-scroll"><table class="tbl"><tr><th>Played</th><th>Mode</th><th>Period</th>
       <th>Return</th><th>Benchmark</th><th>Max DD</th><th>Process</th></tr>${p.sessions.slice().reverse().map((s) => `
       <tr><td>${esc(s.played)}</td><td>${esc(s.scenario || s.mode)}</td><td>${esc(s.start)} → ${esc(s.end)}</td>
       <td class="${cls(s.return)}">${fmtPct(s.return)}</td><td>${s.benchmark_return == null ? "–" : fmtPct(s.benchmark_return)}</td>
-      <td>${pct(-s.max_drawdown)}</td><td>${s.process_score == null ? "–" : s.process_score}</td></tr>`).join("")}</table>`
+      <td>${pct(-s.max_drawdown)}</td><td>${s.process_score == null ? "–" : s.process_score}</td></tr>`).join("")}</table></div>`
     : '<p class="muted">No finished sessions yet.</p>';
 }
 
@@ -818,12 +933,14 @@ function download(name, text) {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-$("journal-download").addEventListener("click", () => run(async () => {
-  download("journal.csv", (await api("/api/journal")).csv);
-}));
+for (const id of ["journal-download", "settings-journal"]) {
+  $(id).addEventListener("click", () => run(async () => {
+    download("journal.csv", (await api("/api/journal")).csv);
+  }));
+}
 $("progress-reset").addEventListener("click", () => {
   if (!confirm("Reset all XP, lesson results, missions, session history and your saved journal in this browser?")) return;
-  run(async () => { renderLevel(await api("/api/progress/reset", { method: "POST" })); renderProgress(); toast("Progress reset.", "success", 3000); });
+  run(async () => { renderLevel(await api("/api/progress/reset", { method: "POST" })); toast("Progress and journal reset.", "success", 3000); });
 });
 
 $("new-btn").addEventListener("click", () => { ui.report = null; ui.history = null; renderStart(); show("view-start"); window.scrollTo(0, 0); });
@@ -843,6 +960,7 @@ document.addEventListener("keydown", (ev) => {
 });
 
 // --- boot --------------------------------------------------------------------
+applySettings();
 (async function boot() {
   try {
     ui.edu = await api("/api/education");
