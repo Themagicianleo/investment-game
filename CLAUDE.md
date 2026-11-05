@@ -8,6 +8,11 @@
   `actions/deploy-pages`. There is no server: everything runs in the browser, and data is fetched
   ahead of time by a scheduled workflow that commits it to `public/data/` and redeploys.
 - The owner's GitHub account is `Themagicianleo`; the default branch is `main`.
+- **Look and feel follows the EFB too:** the Liquid Glass design from `msfs-buddy/src/shared/glass.css`
+  (copied here as `web/src/glass.css`): an app bar with capsules, a large page title, a floating tab
+  bar (four items, the last is "More"), frosted glass cards over a drifting ambient light, Apple
+  system colours and font, spring-on-press controls, Settings with Appearance (Automatic/Light/Dark)
+  and Reduce transparency, and an installable home-screen app (manifest + Liquid Glass icon).
 
 ## This repository
 

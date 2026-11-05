@@ -47,7 +47,7 @@ GitHub Pages; there is no server.
 |---|---|
 | `web/src/engine/` | The simulation engine, ported from the Python package: replay, fills and costs, dividends and splits, alerts, trend bot, walk-forward, coach, missions, process score and report |
 | `web/src/api.ts` | The same JSON API as the Python server (`trade_sim/web.py`), but running in the browser |
-| `web/src/ui/app.js`, `web/index.html` | The UI (shared with the Python server version) |
+| `web/src/ui/app.js`, `web/index.html`, `web/src/styles.css` | The UI. It uses the same Liquid Glass design as the MSFS Buddy EFB (`web/src/glass.css` is copied from it): a floating tab bar, large titles, frosted glass cards, light/dark appearance and a Reduce transparency setting. It can be added to the iPhone/iPad home screen as an app. |
 | `web/src/content/*.json` | Lessons, glossary, scenarios, missions and default settings, exported from the Python package by `scripts/export_web_content.py` |
 | `web/public/data/market/*.csv` | Daily prices, dividends and splits, refreshed weekly by a workflow |
 | `.github/workflows/deploy.yml` | On every push to `main`: runs both test suites, builds, deploys to Pages |
