@@ -53,6 +53,10 @@ GitHub Pages; there is no server.
 | `.github/workflows/deploy.yml` | On every push to `main`: runs both test suites, builds, deploys to Pages |
 | `.github/workflows/update-market-data.yml` | Weekly (and on demand): downloads data from Yahoo Finance with `scripts/fetch_market_data.py`, commits it if it changed, and redeploys |
 
+**Vercel:** `vercel.json` makes the same site deployable on Vercel. Vercel installs and tests the app
+in `web/`, then builds it for the root path and serves `web/dist`. With the GitHub repository connected,
+every push to `main` deploys, including the weekly market-data commits.
+
 **One-time setup on GitHub:**
 1. Repository **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. **Actions → Update market data → Run workflow**, to publish the first data set. Until it has
