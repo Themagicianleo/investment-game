@@ -16,6 +16,8 @@
 
 ## This repository
 
+- The app is called **Paperhands** (the Python package and CLI keep the name `trade_sim` / `trade-sim`).
+
 - `trade_sim/` is the Python reference engine (CLI, Flask local server). `web/` is the hosted app.
 - The TypeScript engine in `web/src/engine/` is a port of the Python one. After changing engine
   behaviour in Python, mirror it in TypeScript and run `python scripts/make_golden.py`; `npm test`

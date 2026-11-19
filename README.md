@@ -1,12 +1,14 @@
-# trade-sim
+# Paperhands
 
-An educational trading game for practising **buy, hold and sell decisions** on US stocks and ETFs
+*Paper money, real market history.*
+
+Paperhands is an educational trading game for practising **buy, hold and sell decisions** on US stocks and ETFs
 by replaying real daily history one trading day at a time.
 
 **Play it in your browser: https://themagicianleo.github.io/investment-game/**
 
 It runs entirely in your browser (hosted on GitHub Pages). Progress, your journal and any session
-in progress are stored only on your device. There is also a Python command-line version and a
+in progress are stored only on your device. There is also a Python command-line version (`trade-sim`) and a
 local server version (see [Python version](#python-version-cli-and-local-server)).
 
 > **Educational use only.** trade-sim does not give buy or sell advice. Past performance does not

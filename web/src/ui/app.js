@@ -116,7 +116,7 @@ const TAB_FOR = { play: "play", learn: "learn", progress: "progress", glossary: 
 function setTitle(title, subtitle = "") {
   $("page-title").textContent = title;
   $("page-subtitle").textContent = subtitle;
-  document.title = title === "Play" ? "Trade Sim" : `${title} · Trade Sim`;
+  document.title = title === "Play" ? "Paperhands" : `${title} · Paperhands`;
 }
 
 function show(view) {
